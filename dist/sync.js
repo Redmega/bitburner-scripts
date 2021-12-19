@@ -1,5 +1,4 @@
-import type { Cheat as ICheat } from "/scripts/util.js";
-let Cheat;
+import { Cheat } from "/scripts/util.js";
 const getGithubApiUrl = (path) => `https://api.github.com/repos/redmega/bitburner-scripts/contents/${path}`;
 /** @param {string} path*/
 async function fetchFiles(path) {
@@ -14,8 +13,6 @@ async function fetchFiles(path) {
 }
 /** @param {NS} ns*/
 export async function main(ns) {
-    await ns.wget("https://raw.githubusercontent.com/Redmega/bitburner-scripts/main/dist/scripts/util.js", "/scripts/util.js");
-    ({ Cheat } = await import("/scripts/util.js"));
     const files = await fetchFiles("dist/scripts");
     for (const file of files) {
         ns.tprintf("Downloading %s", file.path);
