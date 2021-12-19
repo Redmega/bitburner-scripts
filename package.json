@@ -6,7 +6,7 @@
   "scripts": {
     "build": "ttsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "yarn build && git add dist/* && git commit -m 'update scripts' && git push"
+    "deploy": "yarn build && git add dist/* && git commit -m 'deploy: update scripts' && git push"
   },
   "repository": {
     "type": "git",
