@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as ts from "typescript";
 
 const generateJsDocParamLine = (name: string, type: string) =>
@@ -51,6 +50,7 @@ const addJsdocTransformer = (program: ts.Program, config) => {
 
                 const returnType = typeChecker
                   .getSignatureFromDeclaration(node)
+                  // @ts-ignore
                   .getReturnType().intrinsicName;
                 if (returnType)
                   commentContent += generateJsDocReturnLine(returnType);
@@ -75,10 +75,12 @@ const addJsdocTransformer = (program: ts.Program, config) => {
 
             const returnType = typeChecker
               .getSignatureFromDeclaration(node)
+              // @ts-ignore
               .getReturnType().intrinsicName;
             if (returnType)
               commentContent += generateJsDocReturnLine(returnType);
 
+            // @ts-ignore
             if (node.parameters.length + !!returnType > 1)
               commentContent += "\n";
 

@@ -3,14 +3,7 @@
  */
 
 import type { NS } from "types/bitburner";
-
-interface IServer {
-  name: string;
-  depth: number;
-  root: boolean;
-  path: string[];
-  maxMoney: number;
-}
+import type { IServer } from "types/scripts";
 
 /**
  * Gets all scannable servers, including depth, root access, and path info
