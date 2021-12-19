@@ -1,5 +1,8 @@
 import { getServers } from "/scripts/util";
-/** @param {NS} ns*/
+/**
+ * Generates a connection path and copies it to the clipboard
+ * @param {NS} ns
+*/
 export async function main(ns) {
     const target = ns.args[0];
     if (typeof target !== "string")
