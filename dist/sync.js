@@ -15,8 +15,8 @@ async function fetchFiles(path) {
 export async function main(ns) {
     const files = await fetchFiles("dist/scripts");
     for (const file of files) {
-        ns.tprintf("Downloading %s", file.path);
+        ns.tprintf("INFO Downloading %s", file.path);
         await ns.wget(file.download_url, file.path.replace("dist", ""));
     }
-    ns.tprintf("Downloaded %d files", files.length);
+    ns.tprintf("SUCCESS Downloaded %d files", files.length);
 }
