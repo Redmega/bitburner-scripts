@@ -82,7 +82,6 @@ const addJsdocTransformer = (program: ts.Program, config) => {
             if (node.parameters.length + !!returnType > 1)
               commentContent += "\n";
 
-            console.log("no comments: adding comment");
             ts.addSyntheticLeadingComment(
               node,
               ts.SyntaxKind.MultiLineCommentTrivia,
