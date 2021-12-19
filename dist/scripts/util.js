@@ -1,6 +1,16 @@
 /**
  * Adapted from https://www.reddit.com/r/Bitburner/comments/9nrz3v/scan_script_v2/
  */
+/** @param {string} command* @returns {void}
+
+*/
+export function cmd(command) {
+    const input = Cheat.doc.getElementById("terminal-input");
+    input.value = command;
+    const handler = Object.keys(input)[1];
+    input[handler].onChange({ target: input });
+    input[handler].onKeyDown({ keyCode: 13, preventDefault: () => null });
+}
 /**
  * Gets all scannable servers, including depth, root access, and path info
  * @FIXME IServer doesn't convert to jsdoc returns nicely.
