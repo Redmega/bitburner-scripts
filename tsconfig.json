@@ -5,7 +5,7 @@
       { "transform": "./transformers/remove-types.ts", "type": "raw" },
       { "transform": "./transformers/imports.ts", "type": "raw" }
     ],
-    "module": "ESNext",
+    "module": "esnext",
     "lib": ["ES6", "DOM"],
     "target": "ESNEXT",
     "baseUrl": ".",
@@ -15,7 +15,7 @@
       "types/*": ["./types/*"]
     },
     "typeRoots": ["types", "node_modules/@types"],
-    "outDir": "dist/scripts"
+    "outDir": "dist/"
   },
   "include": ["src/**/*.ts"],
   "jsdoc": "jsdoc/out"

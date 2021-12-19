@@ -57,3 +57,16 @@ export function findLastIndex<T>(
   }
   return -1;
 }
+
+/**
+ * Bypass document RAM cost
+ */
+export class Cheat {
+  static get doc() {
+    return globalThis["document"] as Document;
+  }
+
+  static get win() {
+    return globalThis as typeof window;
+  }
+}

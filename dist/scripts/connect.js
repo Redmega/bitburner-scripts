@@ -1,4 +1,4 @@
-import { getServers } from "/scripts/util";
+import { getServers } from "/scripts/util.js";
 /**
  * Generates a connection path and copies it to the clipboard
  * @param {NS} ns

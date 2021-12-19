@@ -46,3 +46,14 @@ export function findLastIndex(array, predicate) {
     }
     return -1;
 }
+/**
+ * Bypass document RAM cost
+ */
+export class Cheat {
+    static get doc() {
+        return globalThis["document"];
+    }
+    static get win() {
+        return globalThis;
+    }
+}
