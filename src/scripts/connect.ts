@@ -1,6 +1,9 @@
 import type { NS } from "types/bitburner";
 import { getServers } from "scripts/util";
 
+/**
+ * Generates a connection path and copies it to the clipboard
+ */
 export async function main(ns: NS) {
   const target = ns.args[0];
 
