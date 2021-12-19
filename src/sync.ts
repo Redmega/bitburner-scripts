@@ -1,4 +1,4 @@
-import type { Cheat as ICheat } from "scripts/util";
+import { Cheat } from "scripts/util";
 import type { NS } from "types/bitburner";
 
 interface GithubContentResponse {
@@ -6,8 +6,6 @@ interface GithubContentResponse {
   type: string;
   download_url: string;
 }
-
-let Cheat: typeof ICheat;
 
 const getGithubApiUrl = (path) =>
   `https://api.github.com/repos/redmega/bitburner-scripts/contents/${path}`;
@@ -26,12 +24,6 @@ async function fetchFiles(path: string) {
 }
 
 export async function main(ns: NS) {
-  await ns.wget(
-    "https://raw.githubusercontent.com/Redmega/bitburner-scripts/main/dist/scripts/util.js",
-    "/scripts/util.js"
-  );
-  ({ Cheat } = await import("scripts/util"));
-
   const files = await fetchFiles("dist/scripts");
 
   for (const file of files) {
