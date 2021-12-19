@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "plugins": [
+      { "transform": "./transformers/add-jsdoc.ts" },
+      { "transform": "./transformers/remove-types.ts", "type": "raw" },
+      { "transform": "./transformers/imports.ts", "type": "raw" }
+    ],
+    "module": "ESNext",
+    "lib": ["ES6", "DOM"],
+    "target": "ESNEXT",
+    "baseUrl": ".",
+    "removeComments": false,
+    "paths": {
+      "scripts/*": ["./src/scripts/*"],
+      "types/*": ["./types/*"]
+    },
+    "typeRoots": ["types", "node_modules/@types"],
+    "outDir": "dist/scripts"
+  },
+  "include": ["src/**/*.ts"],
+  "jsdoc": "jsdoc/out"
+}

@@ -1,0 +1,28 @@
+{
+  "name": "bitburner-scripts",
+  "version": "1.0.0",
+  "description": "My personal collection of bitburner scripts",
+  "main": "index.js",
+  "scripts": {
+    "build": "ttsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Redmega/bitburner-scripts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Redmega/bitburner-scripts/issues"
+  },
+  "homepage": "https://github.com/Redmega/bitburner-scripts#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@ts-tools/robotrix": "^3.0.1",
+    "prettier": "^2.5.1",
+    "ts-node": "^10.4.0",
+    "ttypescript": "^1.5.13",
+    "typescript": "^4.5.4"
+  }
+}
