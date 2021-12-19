@@ -1,5 +1,5 @@
 import type { NS } from "types/bitburner";
-import { Cheat } from "scripts/util";
+import { cmd } from "scripts/util";
 
 export async function main(ns: NS) {
   if (ns.scan().indexOf("darkweb") < 0) {
@@ -25,9 +25,5 @@ export async function main(ns: NS) {
     .map((program) => `buy ${program}; `)
     .join("")} connect home;`;
 
-  const input = Cheat.doc.getElementById("terminal-input") as HTMLInputElement;
-  input.value = command;
-  const handler = Object.keys(input)[1];
-  input[handler].onChange({ target: input });
-  input[handler].onKeyDown({ keyCode: 13, preventDefault: () => null });
+  cmd(command);
 }

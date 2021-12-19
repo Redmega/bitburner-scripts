@@ -5,6 +5,14 @@
 import type { NS } from "types/bitburner";
 import type { IServer } from "types/scripts";
 
+export function cmd(command: string) {
+  const input = Cheat.doc.getElementById("terminal-input") as HTMLInputElement;
+  input.value = command;
+  const handler = Object.keys(input)[1];
+  input[handler].onChange({ target: input });
+  input[handler].onKeyDown({ keyCode: 13, preventDefault: () => null });
+}
+
 /**
  * Gets all scannable servers, including depth, root access, and path info
  * @FIXME IServer doesn't convert to jsdoc returns nicely.
