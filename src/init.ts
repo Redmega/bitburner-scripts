@@ -18,7 +18,7 @@ export async function main(ns: NS) {
   ns.tprintf("INFO Downloading sync script.");
   await ns.wget(
     "https://raw.githubusercontent.com/Redmega/bitburner-scripts/main/dist/sync.js",
-    "/sync.js"
+    "sync.js"
   );
 
   ns.tprintf("INFO Spawning sync script");
