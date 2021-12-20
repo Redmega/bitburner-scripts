@@ -31,7 +31,7 @@ export async function main(ns) {
             myHackLevel = ns.getHackingLevel();
             for (; ns.fileExists(PORT_OPENING_PROGRAMS[numBusters], "home"); numBusters++)
                 ;
-            await ns.sleep(1000);
+            await ns.sleep(10000);
         }
         hackThreshold = myHackLevel + 1;
         portThreshold = numBusters + 1;
