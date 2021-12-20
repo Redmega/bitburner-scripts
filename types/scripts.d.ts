@@ -5,5 +5,5 @@ export interface IServer {
   path: string[];
   maxMoney: number;
   requiredHackingLevel: number;
-  requiredOpenServerPorts: number;
+  requiredOpenPorts: number;
 }
