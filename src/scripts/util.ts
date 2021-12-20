@@ -33,6 +33,8 @@ export function getServers(ns: NS): IServer[] {
         .map((s) => s.name)
         .concat(name),
       maxMoney: ns.getServerMaxMoney(name),
+      requiredHackingLevel: ns.getServerRequiredHackingLevel(name),
+      requiredOpenPorts: ns.getServerNumPortsRequired(name),
     });
 
     for (const server of ns.scan(name)) {
