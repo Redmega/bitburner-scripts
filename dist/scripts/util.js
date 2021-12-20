@@ -32,6 +32,8 @@ export function getServers(ns) {
                 .map((s) => s.name)
                 .concat(name),
             maxMoney: ns.getServerMaxMoney(name),
+            requiredHackingLevel: ns.getServerRequiredHackingLevel(name),
+            requiredOpenPorts: ns.getServerNumPortsRequired(name),
         });
         for (const server of ns.scan(name)) {
             if (visited[server] === undefined) {

@@ -2,7 +2,7 @@
  * Copied from somewhere but I can't remember right now
  * */
 import { getServers } from "/scripts/util.js";
-const portBusters = [
+const PORT_OPENING_PROGRAMS = [
     "BruteSSH.exe",
     "FTPCrack.exe",
     "relaySMTP.exe",
@@ -20,54 +20,47 @@ export async function main(ns) {
     ns.disableLog("ALL");
     ns.enableLog("nuke");
     //Generate list of all unhacked servers
-    let svToNuke = [];
-    getServers(ns).forEach((server) => {
-        if (!server.root) {
-            server.hLvl = ns.getServerRequiredHackingLevel(server.name);
-            server.ports = ns.getServerNumPortsRequired(server.name);
-            svToNuke.push(server);
-        }
+    let servers = getServers(ns)
+        .filter((s) => !s.root)
+        .sort(function (a, b) {
+        return a.requiredHackingLevel - b.requiredHackingLevel;
     });
-    svToNuke.sort(function (a, b) {
-        return a.hLvl - b.hLvl;
-    });
-    while (svToNuke.length > 0) {
+    while (servers.length > 0) {
         //Wait till hacking or busters crosses threshold
         while (myHackLevel < hackThreshold && numBusters < portThreshold) {
             myHackLevel = ns.getHackingLevel();
-            for (; ns.fileExists(portBusters[numBusters], "home"); numBusters++)
+            for (; ns.fileExists(PORT_OPENING_PROGRAMS[numBusters], "home"); numBusters++)
                 ;
             await ns.sleep(1000);
         }
         hackThreshold = myHackLevel + 1;
         portThreshold = numBusters + 1;
         //Try nuking servers
-        for (let i = 0; i < svToNuke.length; i++) {
-            let sv = svToNuke[i];
-            if (sv.hLvl > myHackLevel) {
-                hackThreshold = sv.hLvl;
+        for (const server of servers) {
+            if (server.requiredHackingLevel > myHackLevel) {
+                hackThreshold = server.requiredHackingLevel;
                 break; //Stop looking for more servers
             }
-            else if (sv.ports > numBusters) {
-                portThreshold = Math.min(portThreshold, sv.ports);
+            else if (server.requiredOpenPorts > numBusters) {
+                portThreshold = Math.min(portThreshold, server.requiredOpenPorts);
             }
             else {
-                if (sv.ports > 0)
-                    ns.brutessh(sv.name);
-                if (sv.ports > 1)
-                    ns.ftpcrack(sv.name);
-                if (sv.ports > 2)
-                    ns.relaysmtp(sv.name);
-                if (sv.ports > 3)
-                    ns.httpworm(sv.name);
-                if (sv.ports > 4)
-                    ns.sqlinject(sv.name);
-                ns.nuke(sv.name);
-                ns.tprint(`Nuked: ${sv.name}`);
-                svToNuke.splice(i--, 1); //Delete server from future consideration
+                if (server.requiredOpenPorts > 0)
+                    ns.brutessh(server.name);
+                if (server.requiredOpenPorts > 1)
+                    ns.ftpcrack(server.name);
+                if (server.requiredOpenPorts > 2)
+                    ns.relaysmtp(server.name);
+                if (server.requiredOpenPorts > 3)
+                    ns.httpworm(server.name);
+                if (server.requiredOpenPorts > 4)
+                    ns.sqlinject(server.name);
+                ns.nuke(server.name);
+                ns.tprint(`Nuked: ${server.name}`);
+                servers = servers.filter((s) => !s.root);
             }
         }
-        ns.print(`Wait till Hack Level: ${hackThreshold} or Busters: ${portThreshold}`);
+        ns.tprint(`Waiting until hacking:${hackThreshold} or ${portThreshold} hacking programs`);
     }
-    ns.tprintf("SUCCESS All Servers Nuked");
+    ns.tprintf("SUCCESS All servers nuked");
 }
