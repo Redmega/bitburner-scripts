@@ -1,11 +1,42 @@
 import { getServers } from "/scripts/util.js";
+import { calculateGrowthThreadsWithFormula } from "/scripts/milk/util.js";
 let ns;
+const RUNNING_PROCESSES = {};
 /** @param {NS} _ns*/
 export async function main(_ns) {
     ns = _ns;
     const servers = getServers(ns).filter((s) => s.root);
     const bestServer = findOptimal(servers);
-    ns.tprintf("Best Server for hacking: %s; max money: %s", bestServer.name, bestServer.maxMoney);
+    while (true) {
+        const availableMoney = ns.getServerMoneyAvailable(bestServer.name);
+        const hackThreads = ns.hackAnalyzeThreads(bestServer.name, bestServer.maxMoney);
+        const weakenThreads = 1000;
+        const growthThreads = calculateGrowthThreadsWithFormula(ns, ns.getServer(bestServer.name), ns.getPlayer(), availableMoney, bestServer.maxMoney);
+        ns.tprintf("Calculated growth threads: %d", growthThreads);
+        ns.tprintf("Calculated hack threads: %d", hackThreads);
+        // ns.tprintf("Calculated weaken threads: %d");
+        if (availableMoney < bestServer.maxMoney) {
+            const pid = ns.run("/scripts/milk/hack.js", hackThreads, bestServer.name);
+            if (pid)
+                RUNNING_PROCESSES.grow = pid;
+        }
+        let weakenFinish = Date.now() + ns.getWeakenTime(bestServer.name);
+        if (ns.getServerSecurityLevel(bestServer.name) >
+            ns.getServerMinSecurityLevel(bestServer.name)) {
+            // Figure out how long to get security level down to 0
+            const pid = ns.run("/scripts/milk/weaken.js", weakenThreads, bestServer.name);
+            if (pid)
+                RUNNING_PROCESSES.weaken = pid;
+        }
+        let hackFinish = Date.now() + ns.getHackTime(bestServer.name);
+        if (!RUNNING_PROCESSES.grow &&
+            (!RUNNING_PROCESSES.weaken || weakenFinish <= hackFinish)) {
+            const pid = ns.run("/scripts/milk/hack.js", hackThreads, bestServer.name);
+            if (pid)
+                RUNNING_PROCESSES.hack = pid;
+        }
+        await ns.sleep(5000);
+    }
 }
 /**
  * Adapted from https://www.reddit.com/r/Bitburner/comments/rk6ltp/565_gb_script_for_hacking_servers/
