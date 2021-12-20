@@ -3837,7 +3837,7 @@ interface Stanek {
  * {@link https://bitburner.readthedocs.io/en/latest/netscript/netscriptjs.html| ns2 in-game docs}
  * <hr>
  */
-export interface NS extends Singularity {
+export interface NS<Args = (string | number | boolean)[]> extends Singularity {
   /**
    * Namespace for hacknet functions.
    * @remarks RAM cost: 4 GB
@@ -3904,7 +3904,7 @@ export interface NS extends Singularity {
    * It is also possible to get the number of arguments that was passed into a script using: 'args.length'
    * WARNING: Do not try to modify the args array. This will break the game.
    */
-  readonly args: (string | number | boolean)[];
+  readonly args: Args;
 
   /**
    * Steal a servers money.

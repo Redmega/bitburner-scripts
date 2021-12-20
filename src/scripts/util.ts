@@ -60,6 +60,42 @@ export function findLastIndex<T>(
 }
 
 /**
+ *
+ */
+export class Options<T extends Object> {
+  args: (string | number)[];
+  values: T = {} as T;
+
+  constructor(args: (string | number)[]) {
+    this.args = args;
+
+    let tuple: (string | number)[] = [];
+    for (const arg of args) {
+      // handle string args
+      if (typeof arg === "string") {
+        if (arg.startsWith("--")) {
+          tuple.push(arg);
+        } else if (arg.startsWith("-")) {
+          this.values[arg] = true;
+          tuple = [];
+        } else {
+          if (tuple.length === 1) {
+            this.values[tuple[0]] = arg;
+            tuple = [];
+          } else {
+            throw new Error("Unpaired raw value");
+          }
+        }
+      }
+    }
+  }
+
+  add(key: string, value: keyof T | string | number | boolean) {
+    this.values[key] = value;
+  }
+}
+
+/**
  * Bypass document RAM cost
  */
 export class Cheat {

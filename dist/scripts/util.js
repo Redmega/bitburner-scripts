@@ -57,6 +57,41 @@ export function findLastIndex(array, predicate) {
     return -1;
 }
 /**
+ *
+ */
+export class Options {
+    args;
+    values = {};
+    constructor(args) {
+        this.args = args;
+        let tuple = [];
+        for (const arg of args) {
+            // handle string args
+            if (typeof arg === "string") {
+                if (arg.startsWith("--")) {
+                    tuple.push(arg);
+                }
+                else if (arg.startsWith("-")) {
+                    this.values[arg] = true;
+                    tuple = [];
+                }
+                else {
+                    if (tuple.length === 1) {
+                        this.values[tuple[0]] = arg;
+                        tuple = [];
+                    }
+                    else {
+                        throw new Error("Unpaired raw value");
+                    }
+                }
+            }
+        }
+    }
+    add(key, value) {
+        this.values[key] = value;
+    }
+}
+/**
  * Bypass document RAM cost
  */
 export class Cheat {
