@@ -2,36 +2,49 @@ import { getServers } from "/scripts/util.js";
 import { calculateGrowthThreadsWithFormula } from "/scripts/milk/util.js";
 let ns;
 const RUNNING_PROCESSES = {
-    hack: 0,
-    grow: 0,
-    weaken: 0,
+    hack: {
+        pid: 0,
+        time: 0,
+    },
+    grow: {
+        pid: 0,
+        time: 0,
+    },
+    weaken: {
+        pid: 0,
+        time: 0,
+    },
 };
 /** @param {NS} _ns*/
 export async function main(_ns) {
     ns = _ns;
-    const servers = getServers(ns).filter((s) => s.root);
-    const bestServer = findOptimal(servers);
+    let activeServer = "n00dles";
     while (true) {
+        const servers = getServers(ns).filter((s) => s.root);
+        const bestServer = findOptimal(servers);
+        if (bestServer.name !== activeServer) {
+            Object.values(RUNNING_PROCESSES).forEach(({ pid }) => ns.kill(pid, "home"));
+            activeServer = bestServer.name;
+        }
         const availableMoney = ns.getServerMoneyAvailable(bestServer.name);
         const hackThreads = ns.hackAnalyzeThreads(bestServer.name, bestServer.maxMoney);
         const weakenThreads = 2000;
         const growthThreads = calculateGrowthThreadsWithFormula(ns, ns.getServer(bestServer.name), ns.getPlayer(), availableMoney, bestServer.maxMoney);
-        ns.tprintf("Calculated growth threads: %d", growthThreads);
-        ns.tprintf("Calculated hack threads: %d", hackThreads);
-        // ns.tprintf("Calculated weaken threads: %d");
         ns.tprintf('Milking "%s"', bestServer.name);
         for (const process in RUNNING_PROCESSES) {
             if (!checkPid(RUNNING_PROCESSES[process])) {
                 RUNNING_PROCESSES[process] = 0;
             }
         }
-        const growFinish = Date.now() + ns.getGrowTime(bestServer.name);
-        if (!RUNNING_PROCESSES.grow && availableMoney < bestServer.maxMoney) {
+        const growTime = ns.getGrowTime(bestServer.name);
+        const growFinish = Date.now() + growTime;
+        if (!RUNNING_PROCESSES.grow.pid && availableMoney < bestServer.maxMoney) {
             const pid = ns.run("/scripts/milk/grow.js", growthThreads, bestServer.name);
             if (pid)
-                RUNNING_PROCESSES.grow = pid;
+                RUNNING_PROCESSES.grow = { pid, time: growTime };
         }
-        let weakenFinish = Date.now() + ns.getWeakenTime(bestServer.name);
+        const weakenTime = ns.getWeakenTime(bestServer.name);
+        const weakenFinish = Date.now() + weakenTime;
         if (!RUNNING_PROCESSES.weaken &&
             (!RUNNING_PROCESSES.grow || growFinish < weakenFinish) &&
             ns.getServerSecurityLevel(bestServer.name) >
@@ -39,18 +52,19 @@ export async function main(_ns) {
             // Figure out how long to get security level down to 0
             const pid = ns.run("/scripts/milk/weaken.js", weakenThreads, bestServer.name);
             if (pid)
-                RUNNING_PROCESSES.weaken = pid;
+                RUNNING_PROCESSES.weaken = { pid, time: weakenTime };
         }
-        let hackFinish = Date.now() + ns.getHackTime(bestServer.name);
+        const hackTime = ns.getHackTime(bestServer.name);
+        const hackFinish = Date.now() + hackTime;
         if (hackThreads > 0 &&
             !RUNNING_PROCESSES.hack &&
             !RUNNING_PROCESSES.grow &&
             (!RUNNING_PROCESSES.weaken || weakenFinish <= hackFinish)) {
             const pid = ns.run("/scripts/milk/hack.js", hackThreads, bestServer.name);
             if (pid)
-                RUNNING_PROCESSES.hack = pid;
+                RUNNING_PROCESSES.hack = { pid, time: hackTime };
         }
-        await ns.sleep(5000);
+        await ns.sleep(Math.max(1000, Math.min(RUNNING_PROCESSES.grow.time, RUNNING_PROCESSES.weaken.time)));
     }
 }
 /**
