@@ -18,11 +18,12 @@ const RUNNING_PROCESSES = {
 /** @param {NS} _ns*/
 export async function main(_ns) {
     ns = _ns;
-    let activeServer = "n00dles";
+    let activeServer = "";
     while (true) {
         const servers = getServers(ns).filter((s) => s.root);
         const bestServer = findOptimal(servers);
         if (bestServer.name !== activeServer) {
+            ns.tprintf('Milking "%s"', bestServer.name);
             Object.values(RUNNING_PROCESSES).forEach(({ pid }) => ns.kill(pid, "home"));
             activeServer = bestServer.name;
         }
@@ -30,7 +31,6 @@ export async function main(_ns) {
         const hackThreads = ns.hackAnalyzeThreads(bestServer.name, bestServer.maxMoney);
         const weakenThreads = 2000;
         const growthThreads = calculateGrowthThreadsWithFormula(ns, ns.getServer(bestServer.name), ns.getPlayer(), availableMoney, bestServer.maxMoney);
-        ns.tprintf('Milking "%s"', bestServer.name);
         for (const process in RUNNING_PROCESSES) {
             if (!checkPid(RUNNING_PROCESSES[process])) {
                 RUNNING_PROCESSES[process] = 0;
@@ -64,7 +64,7 @@ export async function main(_ns) {
             if (pid)
                 RUNNING_PROCESSES.hack = { pid, time: hackTime };
         }
-        await ns.sleep(Math.max(1000, Math.min(RUNNING_PROCESSES.grow.time, RUNNING_PROCESSES.weaken.time)));
+        await ns.sleep(Math.max(5000, Math.min(RUNNING_PROCESSES.grow.time, RUNNING_PROCESSES.weaken.time)));
     }
 }
 /**

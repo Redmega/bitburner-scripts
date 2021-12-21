@@ -23,13 +23,14 @@ const RUNNING_PROCESSES = {
 export async function main(_ns: NS) {
   ns = _ns;
 
-  let activeServer = "n00dles";
+  let activeServer = "";
 
   while (true) {
     const servers = getServers(ns).filter((s) => s.root);
     const bestServer = findOptimal(servers);
 
     if (bestServer.name !== activeServer) {
+      ns.tprintf('Milking "%s"', bestServer.name);
       Object.values(RUNNING_PROCESSES).forEach(({ pid }) =>
         ns.kill(pid, "home")
       );
@@ -50,8 +51,6 @@ export async function main(_ns: NS) {
       availableMoney,
       bestServer.maxMoney
     );
-
-    ns.tprintf('Milking "%s"', bestServer.name);
 
     for (const process in RUNNING_PROCESSES) {
       if (!checkPid(RUNNING_PROCESSES[process])) {
@@ -102,7 +101,7 @@ export async function main(_ns: NS) {
 
     await ns.sleep(
       Math.max(
-        1000,
+        5000,
         Math.min(RUNNING_PROCESSES.grow.time, RUNNING_PROCESSES.weaken.time)
       )
     );
