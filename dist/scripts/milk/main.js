@@ -24,7 +24,10 @@ export async function main(_ns) {
         const bestServer = findOptimal(servers);
         if (bestServer.name !== activeServer) {
             ns.tprintf('Milking "%s"', bestServer.name);
-            Object.values(RUNNING_PROCESSES).forEach(({ pid }) => ns.kill(pid, "home"));
+            for (const [process, { pid }] of Object.entries(RUNNING_PROCESSES)) {
+                ns.kill(pid, "home");
+                RUNNING_PROCESSES[process] = { pid: 0, time: 0 };
+            }
             activeServer = bestServer.name;
         }
         const availableMoney = ns.getServerMoneyAvailable(bestServer.name);
@@ -33,7 +36,7 @@ export async function main(_ns) {
         const growthThreads = calculateGrowthThreadsWithFormula(ns, ns.getServer(bestServer.name), ns.getPlayer(), availableMoney, bestServer.maxMoney);
         for (const process in RUNNING_PROCESSES) {
             if (!checkPid(RUNNING_PROCESSES[process])) {
-                RUNNING_PROCESSES[process] = 0;
+                RUNNING_PROCESSES[process] = { pid: 0, time: 0 };
             }
         }
         const growTime = ns.getGrowTime(bestServer.name);
