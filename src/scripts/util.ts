@@ -18,10 +18,13 @@ export function cmd(command: string) {
  * @FIXME IServer doesn't convert to jsdoc returns nicely.
  */
 export function getServers(ns: NS): IServer[] {
-  ns.disableLog("hasRootAccess");
+  ns.disableLog("disableLog");
+  ns.disableLog("enableLog");
+  ns.disableLog("scan");
   ns.disableLog("getServerMaxMoney");
-  ns.disableLog("getServerRequiredHackingLevel");
   ns.disableLog("getServerNumPortsRequired");
+  ns.disableLog("getServerRequiredHackingLevel");
+  ns.disableLog("hasRootAccess");
 
   let result: IServer[] = [];
   let visited = { home: 0 };
@@ -50,10 +53,13 @@ export function getServers(ns: NS): IServer[] {
     }
   }
 
-  ns.enableLog("hasRootAccess");
+  ns.enableLog("scan");
   ns.enableLog("getServerMaxMoney");
-  ns.enableLog("getServerRequiredHackingLevel");
   ns.enableLog("getServerNumPortsRequired");
+  ns.enableLog("getServerRequiredHackingLevel");
+  ns.enableLog("hasRootAccess");
+  ns.enableLog("disableLog");
+  ns.enableLog("enableLog");
 
   return result;
 }

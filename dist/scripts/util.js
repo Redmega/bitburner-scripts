@@ -17,10 +17,13 @@ export function cmd(command) {
  * @param {NS} ns
 */
 export function getServers(ns) {
-    ns.disableLog("hasRootAccess");
+    ns.disableLog("disableLog");
+    ns.disableLog("enableLog");
+    ns.disableLog("scan");
     ns.disableLog("getServerMaxMoney");
-    ns.disableLog("getServerRequiredHackingLevel");
     ns.disableLog("getServerNumPortsRequired");
+    ns.disableLog("getServerRequiredHackingLevel");
+    ns.disableLog("hasRootAccess");
     let result = [];
     let visited = { home: 0 };
     let queue = Object.keys(visited);
@@ -46,10 +49,13 @@ export function getServers(ns) {
             }
         }
     }
-    ns.enableLog("hasRootAccess");
+    ns.enableLog("scan");
     ns.enableLog("getServerMaxMoney");
-    ns.enableLog("getServerRequiredHackingLevel");
     ns.enableLog("getServerNumPortsRequired");
+    ns.enableLog("getServerRequiredHackingLevel");
+    ns.enableLog("hasRootAccess");
+    ns.enableLog("disableLog");
+    ns.enableLog("enableLog");
     return result;
 }
 /**
