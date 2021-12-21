@@ -17,6 +17,10 @@ export function cmd(command) {
  * @param {NS} ns
 */
 export function getServers(ns) {
+    ns.disableLog("hasRootAccess");
+    ns.disableLog("getServerMaxMoney");
+    ns.disableLog("getServerRequiredHackingLevel");
+    ns.disableLog("getServerNumPortsRequired");
     let result = [];
     let visited = { home: 0 };
     let queue = Object.keys(visited);
@@ -42,6 +46,10 @@ export function getServers(ns) {
             }
         }
     }
+    ns.enableLog("hasRootAccess");
+    ns.enableLog("getServerMaxMoney");
+    ns.enableLog("getServerRequiredHackingLevel");
+    ns.enableLog("getServerNumPortsRequired");
     return result;
 }
 /**
