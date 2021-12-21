@@ -5,7 +5,11 @@ import { calculateGrowthThreadsWithFormula } from "scripts/milk/util";
 
 let ns: NS;
 
-const RUNNING_PROCESSES: Record<string, number> = {};
+const RUNNING_PROCESSES = {
+  hack: 0,
+  grow: 0,
+  weaken: 0,
+};
 
 export async function main(_ns: NS) {
   ns = _ns;
@@ -19,7 +23,7 @@ export async function main(_ns: NS) {
       bestServer.name,
       bestServer.maxMoney
     );
-    const weakenThreads = 1000;
+    const weakenThreads = 2000;
     const growthThreads = calculateGrowthThreadsWithFormula(
       ns,
       ns.getServer(bestServer.name),
@@ -32,15 +36,26 @@ export async function main(_ns: NS) {
     ns.tprintf("Calculated hack threads: %d", hackThreads);
     // ns.tprintf("Calculated weaken threads: %d");
 
-    if (availableMoney < bestServer.maxMoney) {
+    ns.tprintf('Milking "%s"', bestServer.name);
+
+    for (const process in RUNNING_PROCESSES) {
+      if (!checkPid(RUNNING_PROCESSES[process])) {
+        RUNNING_PROCESSES[process] = 0;
+      }
+    }
+
+    const growFinish = Date.now() + ns.getGrowTime(bestServer.name);
+    if (!RUNNING_PROCESSES.grow && availableMoney < bestServer.maxMoney) {
       const pid = ns.run("/scripts/milk/hack.js", hackThreads, bestServer.name);
       if (pid) RUNNING_PROCESSES.grow = pid;
     }
 
     let weakenFinish = Date.now() + ns.getWeakenTime(bestServer.name);
     if (
+      !RUNNING_PROCESSES.weaken &&
+      (!RUNNING_PROCESSES.grow || growFinish < weakenFinish) &&
       ns.getServerSecurityLevel(bestServer.name) >
-      ns.getServerMinSecurityLevel(bestServer.name)
+        ns.getServerMinSecurityLevel(bestServer.name)
     ) {
       // Figure out how long to get security level down to 0
 
@@ -54,6 +69,7 @@ export async function main(_ns: NS) {
 
     let hackFinish = Date.now() + ns.getHackTime(bestServer.name);
     if (
+      !RUNNING_PROCESSES.hack &&
       !RUNNING_PROCESSES.grow &&
       (!RUNNING_PROCESSES.weaken || weakenFinish <= hackFinish)
     ) {
@@ -89,4 +105,11 @@ function findOptimal(servers: IServer[]) {
     }
   }
   return optimalServer;
+}
+
+/**
+ * Check if a script is running. We do it once here to save RAM
+ */
+function checkPid(pid: number) {
+  return ns.getRunningScript(pid, "home");
 }
