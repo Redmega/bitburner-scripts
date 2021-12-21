@@ -16,7 +16,7 @@ export async function main(ns) {
     const files = await fetchFiles("dist/scripts");
     for (const file of files) {
         ns.tprintf("INFO Downloading %s", file.path);
-        await ns.wget(file.download_url, file.path.replace("dist", ""));
+        await ns.wget(`${file.download_url}?t=${Date.now()}`, file.path.replace("dist", ""));
     }
     ns.tprintf("SUCCESS Downloaded %d files", files.length);
 }

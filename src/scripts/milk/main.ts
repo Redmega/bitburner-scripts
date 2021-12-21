@@ -46,7 +46,11 @@ export async function main(_ns: NS) {
 
     const growFinish = Date.now() + ns.getGrowTime(bestServer.name);
     if (!RUNNING_PROCESSES.grow && availableMoney < bestServer.maxMoney) {
-      const pid = ns.run("/scripts/milk/hack.js", hackThreads, bestServer.name);
+      const pid = ns.run(
+        "/scripts/milk/grow.js",
+        growthThreads,
+        bestServer.name
+      );
       if (pid) RUNNING_PROCESSES.grow = pid;
     }
 
@@ -69,6 +73,7 @@ export async function main(_ns: NS) {
 
     let hackFinish = Date.now() + ns.getHackTime(bestServer.name);
     if (
+      hackThreads > 0 &&
       !RUNNING_PROCESSES.hack &&
       !RUNNING_PROCESSES.grow &&
       (!RUNNING_PROCESSES.weaken || weakenFinish <= hackFinish)
