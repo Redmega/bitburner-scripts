@@ -1,5 +1,4 @@
 import { getServers } from "/scripts/util.js";
-import { calculateGrowthThreadsWithFormula } from "/scripts/milk/util.js";
 let ns;
 const RUNNING_PROCESSES = {
     hack: {
@@ -25,7 +24,8 @@ export async function main(_ns) {
         if (bestServer.name !== activeServer) {
             ns.tprintf('Milking "%s"', bestServer.name);
             for (const [process, { pid }] of Object.entries(RUNNING_PROCESSES)) {
-                ns.kill(pid, "home");
+                if (pid)
+                    ns.kill(pid, "home");
                 RUNNING_PROCESSES[process] = { pid: 0, time: 0 };
             }
             activeServer = bestServer.name;
@@ -33,7 +33,7 @@ export async function main(_ns) {
         const availableMoney = ns.getServerMoneyAvailable(bestServer.name);
         const hackThreads = ns.hackAnalyzeThreads(bestServer.name, bestServer.maxMoney);
         const weakenThreads = 2000;
-        const growthThreads = calculateGrowthThreadsWithFormula(ns, ns.getServer(bestServer.name), ns.getPlayer(), availableMoney, bestServer.maxMoney);
+        const growthThreads = Math.ceil(ns.growthAnalyze(bestServer.name, bestServer.maxMoney / availableMoney, ns.getServer("home").cpuCores));
         for (const process in RUNNING_PROCESSES) {
             if (!checkPid(RUNNING_PROCESSES[process])) {
                 RUNNING_PROCESSES[process] = { pid: 0, time: 0 };
@@ -83,10 +83,9 @@ function findOptimal(servers) {
     let optimalServer = servers.find((s) => s.name === "n00dles");
     let optimalRatio = 0;
     for (const server of servers) {
-        const cycleTime = ns.getWeakenTime(server.name) +
-            ns.getGrowTime(server.name) +
-            ns.getHackTime(server.name);
-        const workRatio = server.maxMoney / cycleTime;
+        const { name, maxMoney } = server;
+        const cycleTime = Math.max(ns.getWeakenTime(name), ns.getGrowTime(name), ns.getHackTime(name));
+        const workRatio = maxMoney / cycleTime;
         if (workRatio >= optimalRatio) {
             optimalRatio = workRatio;
             optimalServer = server;

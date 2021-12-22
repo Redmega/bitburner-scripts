@@ -1,7 +1,6 @@
 import type { NS } from "types/bitburner";
 import { getServers } from "scripts/util";
 import { IServer } from "types/scripts";
-import { calculateGrowthThreadsWithFormula } from "scripts/milk/util";
 
 let ns: NS;
 
@@ -32,7 +31,7 @@ export async function main(_ns: NS) {
     if (bestServer.name !== activeServer) {
       ns.tprintf('Milking "%s"', bestServer.name);
       for (const [process, { pid }] of Object.entries(RUNNING_PROCESSES)) {
-        ns.kill(pid, "home");
+        if (pid) ns.kill(pid, "home");
         RUNNING_PROCESSES[process] = { pid: 0, time: 0 };
       }
       activeServer = bestServer.name;
@@ -45,12 +44,12 @@ export async function main(_ns: NS) {
       bestServer.maxMoney
     );
     const weakenThreads = 2000;
-    const growthThreads = calculateGrowthThreadsWithFormula(
-      ns,
-      ns.getServer(bestServer.name),
-      ns.getPlayer(),
-      availableMoney,
-      bestServer.maxMoney
+    const growthThreads = Math.ceil(
+      ns.growthAnalyze(
+        bestServer.name,
+        bestServer.maxMoney / availableMoney,
+        ns.getServer("home").cpuCores
+      )
     );
 
     for (const process in RUNNING_PROCESSES) {
@@ -122,11 +121,13 @@ function findOptimal(servers: IServer[]) {
   let optimalRatio = 0;
 
   for (const server of servers) {
-    const cycleTime =
-      ns.getWeakenTime(server.name) +
-      ns.getGrowTime(server.name) +
-      ns.getHackTime(server.name);
-    const workRatio = server.maxMoney / cycleTime;
+    const { name, maxMoney } = server;
+    const cycleTime = Math.max(
+      ns.getWeakenTime(name),
+      ns.getGrowTime(name),
+      ns.getHackTime(name)
+    );
+    const workRatio = maxMoney / cycleTime;
     if (workRatio >= optimalRatio) {
       optimalRatio = workRatio;
       optimalServer = server;
