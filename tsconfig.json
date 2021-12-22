@@ -6,7 +6,13 @@
       { "transform": "./transformers/imports.ts", "type": "raw" }
     ],
     "module": "esnext",
-    "lib": ["ES6", "ES2017.Object", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES6",
+      "ES2016.Array.Include",
+      "ES2017.Object",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "target": "ESNEXT",
     "baseUrl": ".",
     "removeComments": false,

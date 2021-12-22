@@ -4,14 +4,17 @@ const RUNNING_PROCESSES = {
     hack: {
         pid: 0,
         time: 0,
+        started: 0,
     },
     grow: {
         pid: 0,
         time: 0,
+        started: 0,
     },
     weaken: {
         pid: 0,
         time: 0,
+        started: 0,
     },
 };
 /** @param {NS} _ns*/
@@ -44,7 +47,11 @@ export async function main(_ns) {
         if (!RUNNING_PROCESSES.grow.pid && availableMoney < bestServer.maxMoney) {
             const pid = ns.run("/scripts/milk/grow.js", growthThreads, bestServer.name);
             if (pid)
-                RUNNING_PROCESSES.grow = { pid, time: growTime };
+                RUNNING_PROCESSES.grow = {
+                    pid,
+                    time: growTime,
+                    started: growFinish - growTime,
+                };
         }
         const weakenTime = ns.getWeakenTime(bestServer.name);
         const weakenFinish = Date.now() + weakenTime;
@@ -54,7 +61,11 @@ export async function main(_ns) {
                 ns.getServerMinSecurityLevel(bestServer.name)) {
             const pid = ns.run("/scripts/milk/weaken.js", weakenThreads, bestServer.name);
             if (pid)
-                RUNNING_PROCESSES.weaken = { pid, time: weakenTime };
+                RUNNING_PROCESSES.weaken = {
+                    pid,
+                    time: weakenTime,
+                    started: weakenFinish - weakenTime,
+                };
         }
         const hackTime = ns.getHackTime(bestServer.name);
         const hackFinish = Date.now() + hackTime;
@@ -64,9 +75,13 @@ export async function main(_ns) {
             (!RUNNING_PROCESSES.weaken.pid || weakenFinish <= hackFinish)) {
             const pid = ns.run("/scripts/milk/hack.js", hackThreads, bestServer.name);
             if (pid)
-                RUNNING_PROCESSES.hack = { pid, time: hackTime };
+                RUNNING_PROCESSES.hack = {
+                    pid,
+                    time: hackTime,
+                    started: hackFinish - hackTime,
+                };
         }
-        await ns.sleep(Math.max(5000, Math.min(RUNNING_PROCESSES.grow.time, RUNNING_PROCESSES.weaken.time)));
+        await ns.sleep(Math.max(5000, Math.min(growTime - Date.now() - RUNNING_PROCESSES.grow.started, weakenTime - Date.now() - RUNNING_PROCESSES.weaken.started)));
     }
 }
 /**
