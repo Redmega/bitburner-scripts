@@ -52,10 +52,10 @@ const maximizeHacknet = (n = 1000) => delay(async () => {
     ns.tprint("Reached maximum hacknet node count");
 }, n);
 class HacknetNode {
-    static maxCores = 16;
-    static maxLevel = 200;
-    static maxRam = 64;
 }
+HacknetNode.maxCores = 16;
+HacknetNode.maxLevel = 200;
+HacknetNode.maxRam = 64;
 /** @param {undefined} fn
 * @param {undefined} time
 */

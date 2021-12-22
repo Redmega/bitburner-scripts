@@ -76,9 +76,8 @@ export function findLastIndex(array, predicate) {
  *
  */
 export class Options {
-    args;
-    values = {};
     constructor(args) {
+        this.values = {};
         this.args = args;
         let tuple = [];
         for (const arg of args) {

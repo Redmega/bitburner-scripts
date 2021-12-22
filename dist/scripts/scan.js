@@ -24,8 +24,9 @@ function getPrefix(depth) {
 }
 /** @param {NS} ns*/
 export async function main(ns) {
+    var _a;
     const servers = getServers(ns);
     for (const { name, depth, root } of servers) {
-        ns.tprintf(`${getPrefix(depth)}${FACTION_SERVERS[name] ?? ""} ${name} ${root ? "✅" : ""}`);
+        ns.tprintf(`${getPrefix(depth)}${(_a = FACTION_SERVERS[name]) !== null && _a !== void 0 ? _a : ""} ${name} ${root ? "✅" : ""}`);
     }
 }
