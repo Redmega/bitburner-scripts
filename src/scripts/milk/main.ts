@@ -115,12 +115,13 @@ export async function main(_ns: NS) {
         };
     }
 
+    const now = Date.now();
     await ns.sleep(
       Math.max(
         5000,
         Math.min(
-          growTime - Date.now() - RUNNING_PROCESSES.grow.started,
-          weakenTime - Date.now() - RUNNING_PROCESSES.weaken.started
+          growTime + now - RUNNING_PROCESSES.grow.started,
+          weakenTime + now - RUNNING_PROCESSES.weaken.started
         )
       )
     );

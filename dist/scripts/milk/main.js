@@ -81,7 +81,8 @@ export async function main(_ns) {
                     started: hackFinish - hackTime,
                 };
         }
-        await ns.sleep(Math.max(5000, Math.min(growTime - Date.now() - RUNNING_PROCESSES.grow.started, weakenTime - Date.now() - RUNNING_PROCESSES.weaken.started)));
+        const now = Date.now();
+        await ns.sleep(Math.max(5000, Math.min(growTime + now - RUNNING_PROCESSES.grow.started, weakenTime + now - RUNNING_PROCESSES.weaken.started)));
     }
 }
 /**
