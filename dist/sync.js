@@ -25,8 +25,8 @@ export async function main(ns) {
         }
         await ns.wget(`${file.download_url}?t=${Date.now()}`, path);
         if (process === null || process === void 0 ? void 0 : process.args.includes("--restart")) {
-            ns.tprintf("INFO Restarting %s", path);
             ns.run(path, process.threads, ...process.args);
+            ns.tprintf("SUCCESS Restarted %s", path);
         }
     }
     ns.tprintf("SUCCESS Downloaded %d files", files.length);
