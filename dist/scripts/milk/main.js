@@ -48,11 +48,10 @@ export async function main(_ns) {
         }
         const weakenTime = ns.getWeakenTime(bestServer.name);
         const weakenFinish = Date.now() + weakenTime;
-        if (!RUNNING_PROCESSES.weaken &&
-            (!RUNNING_PROCESSES.grow || growFinish < weakenFinish) &&
+        if (!RUNNING_PROCESSES.weaken.pid &&
+            (!RUNNING_PROCESSES.grow.pid || growFinish < weakenFinish) &&
             ns.getServerSecurityLevel(bestServer.name) >
                 ns.getServerMinSecurityLevel(bestServer.name)) {
-            // Figure out how long to get security level down to 0
             const pid = ns.run("/scripts/milk/weaken.js", weakenThreads, bestServer.name);
             if (pid)
                 RUNNING_PROCESSES.weaken = { pid, time: weakenTime };
@@ -60,9 +59,9 @@ export async function main(_ns) {
         const hackTime = ns.getHackTime(bestServer.name);
         const hackFinish = Date.now() + hackTime;
         if (hackThreads > 0 &&
-            !RUNNING_PROCESSES.hack &&
-            !RUNNING_PROCESSES.grow &&
-            (!RUNNING_PROCESSES.weaken || weakenFinish <= hackFinish)) {
+            !RUNNING_PROCESSES.hack.pid &&
+            !RUNNING_PROCESSES.grow.pid &&
+            (!RUNNING_PROCESSES.weaken.pid || weakenFinish <= hackFinish)) {
             const pid = ns.run("/scripts/milk/hack.js", hackThreads, bestServer.name);
             if (pid)
                 RUNNING_PROCESSES.hack = { pid, time: hackTime };
