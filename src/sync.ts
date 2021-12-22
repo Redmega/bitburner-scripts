@@ -30,12 +30,14 @@ export async function main(ns: NS) {
     const path = file.path.replace("dist", "");
     const process = processes.find((p) => p.filename === path);
     ns.tprintf("INFO Downloading %s", path);
+
     if (process) {
       ns.tprintf("WARN Killing %s", path);
       ns.scriptKill(path, "home");
     }
+
     await ns.wget(`${file.download_url}?t=${Date.now()}`, path);
-    if (process.args.includes) {
+    if (process?.args.includes("--restart")) {
       ns.tprintf("INFO Restarting %s", path);
       ns.run(path, process.threads, ...process.args);
     }

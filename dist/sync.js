@@ -24,7 +24,7 @@ export async function main(ns) {
             ns.scriptKill(path, "home");
         }
         await ns.wget(`${file.download_url}?t=${Date.now()}`, path);
-        if (process.args.includes) {
+        if (process?.args.includes("--restart")) {
             ns.tprintf("INFO Restarting %s", path);
             ns.run(path, process.threads, ...process.args);
         }
