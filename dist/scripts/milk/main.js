@@ -10,10 +10,7 @@ export async function main(_ns) {
      * Priming the server
      */
     if (availableMoney < maxMoney) {
-        const [weakenTime, growTime] = [
-            ns.getWeakenTime(name),
-            ns.getGrowTime(name),
-        ];
+        const [weakenTime, growTime] = [ns.getWeakenTime(name), ns.getGrowTime(name)];
         const scripts = [
             // Pass max weaken threads because weakenThreads accounts for currentSecurity.
             ["weaken", 2000, name, 0],
@@ -44,9 +41,7 @@ export async function main(_ns) {
      */
     const player = ns.getPlayer();
     const server = ns.getServer(name);
-    growThreads = Math.ceil(5 /
-        (ns.formulas.hacking.growPercent(server, 1, player, ns.getServer("home").cpuCores) -
-            1));
+    growThreads = Math.ceil(5 / (ns.formulas.hacking.growPercent(server, 1, player, ns.getServer("home").cpuCores) - 1));
     const hackThreads = ns.hackAnalyzeThreads(name, availableMoney);
     const weakenThreads = 2000;
     const weakenTime = ns.getWeakenTime(name);

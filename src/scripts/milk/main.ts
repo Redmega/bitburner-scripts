@@ -11,22 +11,13 @@ export async function main(_ns: NS) {
 
   let availableMoney = ns.getServerMoneyAvailable(name);
 
-  let growThreads = Math.ceil(
-    ns.growthAnalyze(
-      name,
-      Math.ceil(maxMoney / (availableMoney || 1)),
-      ns.getServer("home").cpuCores
-    )
-  );
+  let growThreads = Math.ceil(ns.growthAnalyze(name, Math.ceil(maxMoney / (availableMoney || 1)), ns.getServer("home").cpuCores));
 
   /**
    * Priming the server
    */
   if (availableMoney < maxMoney) {
-    const [weakenTime, growTime] = [
-      ns.getWeakenTime(name),
-      ns.getGrowTime(name),
-    ];
+    const [weakenTime, growTime] = [ns.getWeakenTime(name), ns.getGrowTime(name)];
 
     const scripts = [
       // Pass max weaken threads because weakenThreads accounts for currentSecurity.
@@ -66,16 +57,7 @@ export async function main(_ns: NS) {
   const player = ns.getPlayer();
   const server = ns.getServer(name);
 
-  growThreads = Math.ceil(
-    5 /
-      (ns.formulas.hacking.growPercent(
-        server,
-        1,
-        player,
-        ns.getServer("home").cpuCores
-      ) -
-        1)
-  );
+  growThreads = Math.ceil(5 / (ns.formulas.hacking.growPercent(server, 1, player, ns.getServer("home").cpuCores) - 1));
   const hackThreads = ns.hackAnalyzeThreads(name, availableMoney);
   const weakenThreads = 2000;
 
@@ -116,11 +98,7 @@ function findOptimal(servers: IServer[]) {
 
   for (const server of servers) {
     const { name, maxMoney } = server;
-    const cycleTime = Math.max(
-      ns.getWeakenTime(name),
-      ns.getGrowTime(name),
-      ns.getHackTime(name)
-    );
+    const cycleTime = Math.max(ns.getWeakenTime(name), ns.getGrowTime(name), ns.getHackTime(name));
     const workRatio = maxMoney / cycleTime;
     if (workRatio > optimalRatio) {
       optimalRatio = workRatio;
@@ -140,11 +118,6 @@ function checkPid(pid: number) {
 /**
  * Helper so we don't have to keep writing our script paths
  */
-function run(
-  script: "grow" | "hack" | "weaken",
-  threads: number,
-  target: string,
-  sleep: number
-) {
+function run(script: "grow" | "hack" | "weaken", threads: number, target: string, sleep: number) {
   return ns.run(`/scripts/milk/${script}.js`, threads, target, sleep);
 }
