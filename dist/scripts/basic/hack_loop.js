@@ -16,29 +16,30 @@ export async function main(ns) {
         const weakenHackThreads = Math.ceil(hackSecurity / 0.05);
         // grow ->
         const growTime = ns.getGrowTime(target);
-        // @TODO: ns.run('/scripts/milk/grow.js', growThreads, target)
-        ns.tprint(`Grow planned time: ${growTime / 1000}s`);
+        ns.run("/scripts/milk/grow.js", growThreads, target);
+        // ns.tprint(`Grow planned time: ${growTime / 1000}s`);
         // weaken ->
         const weakenTime = ns.getWeakenTime(target);
         let weakenOffset = 0;
         if (weakenTime < growTime) {
             weakenOffset += growTime - weakenTime + 1000;
         }
-        // @TODO: ns.run('/scripts/milk/weaken.js', weakenGrowThreads, target, weakenOffset)
-        ns.tprint(`Weaken planned time: ${weakenTime / 1000}s after ${weakenOffset / 1000}s delay`);
+        ns.run("/scripts/milk/weaken.js", weakenGrowThreads, target, weakenOffset);
+        // ns.tprint(`Weaken planned time: ${weakenTime / 1000}s after ${weakenOffset / 1000}s delay`);
         // hack ->
         const hackTime = ns.getHackTime(target);
         let hackOffset = 0;
         if (hackTime < weakenTime + weakenOffset) {
             hackOffset += weakenOffset + weakenTime - hackTime + 1000;
         }
-        // @TODO: ns.run('/scripts/milk/hack.js', hackThreads, target, hackOffset)
-        ns.tprint(`Hack planned time: ${hackTime / 1000}s after ${hackOffset / 1000}s delay`);
+        ns.run("/scripts/milk/hack.js", hackThreads, target, hackOffset);
+        // ns.tprint(`Hack planned time: ${hackTime / 1000}s after ${hackOffset / 1000}s delay`);
         // weaken ->
         if (weakenTime < hackTime + hackOffset) {
             weakenOffset += hackOffset + hackTime - weakenTime + 1000;
         }
-        // @TODO: ns.run('/scripts/milk/weaken.js', weakenHackThreads, target, weakenOffset)
-        ns.tprint(`Weaken planned time: ${weakenTime / 1000}s after ${weakenOffset / 1000}s delay`);
+        ns.run("/scripts/milk/weaken.js", weakenHackThreads, target, weakenOffset);
+        // ns.tprint(`Weaken planned time: ${weakenTime / 1000}s after ${weakenOffset / 1000}s delay`);
+        await ns.sleep(Math.max(weakenTime + weakenOffset, hackTime + hackOffset, growTime, 1000));
     }
 }

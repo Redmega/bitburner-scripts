@@ -50,5 +50,7 @@ export async function main(ns: NS) {
     }
     ns.run("/scripts/milk/weaken.js", weakenHackThreads, target, weakenOffset);
     // ns.tprint(`Weaken planned time: ${weakenTime / 1000}s after ${weakenOffset / 1000}s delay`);
+
+    await ns.sleep(Math.max(weakenTime + weakenOffset, hackTime + hackOffset, growTime, 1000));
   }
 }
