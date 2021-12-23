@@ -2,22 +2,24 @@
 export async function main(ns) {
     const [target] = ns.args;
     const maxMoney = ns.getServerMaxMoney(target);
-    // First, weaken to 0
-    const weakenTime = ns.getWeakenTime(target);
-    ns.run("/scripts/milk/weaken.js", 2000, target);
-    await ns.sleep(weakenTime + 1000);
+    // First, weaken to 0 if needed
+    if (ns.getServerSecurityLevel(target) > ns.getServerMinSecurityLevel(target)) {
+        const weakenTime = ns.getWeakenTime(target);
+        ns.run("/scripts/milk/weaken.js", 2000, target);
+        await ns.sleep(weakenTime + 1000);
+    }
     while (true) {
-        const availableMoney = ns.getServerMoneyAvailable(target) || 0.01;
-        const hackThreads = ns.hackAnalyzeThreads(target, availableMoney);
-        const growThreads = Math.ceil(ns.growthAnalyze(target, Math.ceil(maxMoney / availableMoney), ns.getServer("home").cpuCores));
+        const availableMoney = ns.getServerMoneyAvailable(target) || 1;
+        const growThreads = Math.ceil(ns.growthAnalyze(target, Math.ceil(maxMoney / availableMoney), ns.getServer("home").cpuCores)) || 1;
         const growSecurity = ns.growthAnalyzeSecurity(growThreads);
-        const hackSecurity = ns.hackAnalyzeSecurity(hackThreads);
-        const weakenGrowThreads = Math.ceil(growSecurity / 0.05);
-        const weakenHackThreads = Math.ceil(hackSecurity / 0.05);
         // grow ->
         const growTime = ns.getGrowTime(target);
         ns.run("/scripts/milk/grow.js", growThreads, target);
         // ns.tprint(`Grow planned time: ${growTime / 1000}s`);
+        const hackThreads = ns.hackAnalyzeThreads(target, ns.getServerMoneyAvailable(target)) || 1;
+        const hackSecurity = ns.hackAnalyzeSecurity(hackThreads);
+        const weakenGrowThreads = Math.ceil(growSecurity / 0.05);
+        const weakenHackThreads = Math.ceil(hackSecurity / 0.05);
         // weaken ->
         const weakenTime = ns.getWeakenTime(target);
         let weakenOffset = 0;
