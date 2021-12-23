@@ -1,4 +1,4 @@
-import type { NS } from "types/bitburner";
+import type { NS } from "types/NetscriptDefinitions";
 
 let ns: NS;
 

@@ -20,7 +20,6 @@
   "homepage": "https://github.com/Redmega/bitburner-scripts#readme",
   "dependencies": {},
   "devDependencies": {
-    "@ts-tools/robotrix": "^3.0.1",
     "prettier": "^2.5.1",
     "ts-node": "^10.4.0",
     "ttypescript": "^1.5.13",

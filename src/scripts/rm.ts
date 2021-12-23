@@ -1,32 +1,15 @@
-import type { NS } from "types/bitburner";
-import { getServers, Options } from "scripts/util";
+import type { NS } from "types/NetscriptDefinitions";
 
-interface IOptions {
-  path: string;
-  "-r": boolean;
-  "-f": boolean;
-}
+type Args = [path: string, recursive: "-r"];
+export async function main(ns: NS) {
+  const [path, recursive] = ns.args as Args;
 
-function args(args: (string | number)[]) {
-  let [path, ...restOpts] = args;
-  if (typeof path === "string" && path.startsWith("-")) {
-    restOpts.unshift(path);
-    path = undefined;
-  }
-  const options = new Options<IOptions>(restOpts);
-  options.add("path", path);
-  return options;
-}
-
-export async function main(ns: NS<(keyof IOptions)[]>) {
-  const options = args(ns.args);
-
-  const files = ns.ls("home", options.values.path);
+  const files = ns.ls("home", path);
 
   if (files.length === 0) {
     ns.tprintf("ERROR File not found");
     return;
-  } else if (files.length > 1 && !options.values["-r"]) {
+  } else if (files.length > 1 && recursive !== "-r") {
     ns.tprintf(
       "ERROR Multiple files found with that grep. Please use `-r` for recursive deletion.\n%j",
       files

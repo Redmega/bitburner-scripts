@@ -2,7 +2,7 @@
  * Adapted from https://www.reddit.com/r/Bitburner/comments/9nrz3v/scan_script_v2/
  */
 
-import type { NS } from "types/bitburner";
+import type { NS } from "types/NetscriptDefinitions";
 import type { IServer } from "types/scripts";
 
 export function cmd(command: string) {

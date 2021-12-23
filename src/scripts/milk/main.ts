@@ -1,6 +1,7 @@
-import type { NS } from "types/bitburner";
-import { getServers } from "scripts/util";
+import type { NS } from "types/NetscriptDefinitions";
 import { IServer } from "types/scripts";
+
+import { getServers } from "/scripts/util.js";
 
 let ns: NS;
 
@@ -13,7 +14,7 @@ export async function main(_ns: NS) {
   let growThreads = Math.ceil(
     ns.growthAnalyze(
       name,
-      Math.floor(maxMoney / availableMoney),
+      Math.ceil(maxMoney / (availableMoney || 1)),
       ns.getServer("home").cpuCores
     )
   );
@@ -76,9 +77,7 @@ export async function main(_ns: NS) {
         1)
   );
   const hackThreads = ns.hackAnalyzeThreads(name, availableMoney);
-  const weakenThreads = Math.ceil(
-    (currentSecurity - minSecurity) / 0.05 - growThreads * 0.004
-  );
+  const weakenThreads = 2000;
 
   const weakenTime = ns.getWeakenTime(name);
   const growTime = ns.getGrowTime(name);
@@ -86,10 +85,11 @@ export async function main(_ns: NS) {
 
   const sleepOffset = 5000;
 
+  // FIXME: Goes almost immediately out of sync after the first round.
   while (true) {
     let weakenSleep = 0;
-    let growSleep = weakenTime - growTime;
-    let hackSleep = weakenTime - hackTime;
+    let growSleep = weakenTime - growTime - sleepOffset / 4;
+    let hackSleep = weakenTime - hackTime - sleepOffset / 2;
 
     ns.print(`Weaken duration: ${weakenTime}`);
     run("weaken", weakenThreads, name, weakenSleep);
@@ -98,7 +98,7 @@ export async function main(_ns: NS) {
     ns.print(`Hack duration: ${hackTime}`);
     run("hack", hackThreads, name, hackSleep);
 
-    await ns.sleep(Math.max(weakenTime, growTime, hackTime));
+    await ns.sleep(Math.max(weakenTime, growTime, hackTime) + sleepOffset);
   }
 }
 
@@ -146,6 +146,5 @@ function run(
   target: string,
   sleep: number
 ) {
-  ns.print(`Running ${script} with ${sleep}ms delay`);
   return ns.run(`/scripts/milk/${script}.js`, threads, target, sleep);
 }

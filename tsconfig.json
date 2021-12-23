@@ -1,11 +1,8 @@
 {
   "compilerOptions": {
-    "plugins": [
-      { "transform": "./transformers/add-jsdoc.ts" },
-      { "transform": "./transformers/remove-types.ts", "type": "raw" },
-      { "transform": "./transformers/imports.ts", "type": "raw" }
-    ],
+    "plugins": [{ "transform": "./transformers/add-jsdoc.ts" }],
     "module": "esnext",
+    "moduleResolution": "node",
     "lib": [
       "ES6",
       "ES2016.Array.Include",
@@ -17,11 +14,11 @@
     "baseUrl": ".",
     "removeComments": false,
     "paths": {
-      "scripts/*": ["./src/scripts/*"],
-      "types/*": ["./types/*"]
+      "/scripts/*.js": ["./src/scripts/*"]
     },
-    "typeRoots": ["types", "node_modules/@types"],
-    "outDir": "dist/"
+    "typeRoots": ["./types", "node_modules/@types"],
+    "outDir": "dist/",
+    "rootDir": "src/"
   },
   "include": ["src/**/*.ts"],
   "jsdoc": "jsdoc/out"

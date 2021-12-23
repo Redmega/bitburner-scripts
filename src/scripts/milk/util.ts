@@ -1,4 +1,4 @@
-import type { NS, Player, Server } from "types/bitburner";
+import type { NS, Player, Server } from "types/NetscriptDefinitions";
 
 /**
  * Adapted (mostly stolen :P) from https://discord.com/channels/415207508303544321/415247422638522395/856627293593141248

@@ -1,5 +1,5 @@
-import type { NS } from "types/bitburner";
-import { getServers } from "scripts/util";
+import type { NS } from "types/NetscriptDefinitions";
+import { getServers } from "/scripts/util.js";
 
 const FACTION_SERVERS = {
   home: "🏠",

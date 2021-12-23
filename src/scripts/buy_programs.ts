@@ -1,5 +1,5 @@
-import type { NS } from "types/bitburner";
-import { cmd } from "scripts/util";
+import type { NS } from "types/NetscriptDefinitions";
+import { cmd } from "/scripts/util.js";
 
 export async function main(ns: NS) {
   if (ns.scan().indexOf("darkweb") < 0) {

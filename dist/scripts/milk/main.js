@@ -5,7 +5,7 @@ export async function main(_ns) {
     ns = _ns;
     const { name, maxMoney } = findOptimal(getServers(ns).filter((s) => s.root));
     let availableMoney = ns.getServerMoneyAvailable(name);
-    let growThreads = Math.ceil(ns.growthAnalyze(name, Math.floor(maxMoney / availableMoney), ns.getServer("home").cpuCores));
+    let growThreads = Math.ceil(ns.growthAnalyze(name, Math.ceil(maxMoney / (availableMoney || 1)), ns.getServer("home").cpuCores));
     /**
      * Priming the server
      */
@@ -48,22 +48,23 @@ export async function main(_ns) {
         (ns.formulas.hacking.growPercent(server, 1, player, ns.getServer("home").cpuCores) -
             1));
     const hackThreads = ns.hackAnalyzeThreads(name, availableMoney);
-    const weakenThreads = Math.ceil((currentSecurity - minSecurity) / 0.05 - growThreads * 0.004);
+    const weakenThreads = 2000;
     const weakenTime = ns.getWeakenTime(name);
     const growTime = ns.getGrowTime(name);
     const hackTime = ns.getHackTime(name);
     const sleepOffset = 5000;
+    // FIXME: Goes almost immediately out of sync after the first round.
     while (true) {
         let weakenSleep = 0;
-        let growSleep = weakenTime - growTime;
-        let hackSleep = weakenTime - hackTime;
+        let growSleep = weakenTime - growTime - sleepOffset / 4;
+        let hackSleep = weakenTime - hackTime - sleepOffset / 2;
         ns.print(`Weaken duration: ${weakenTime}`);
         run("weaken", weakenThreads, name, weakenSleep);
         ns.print(`Grow duration: ${growTime}`);
         run("grow", growThreads, name, growSleep);
         ns.print(`Hack duration: ${hackTime}`);
         run("hack", hackThreads, name, hackSleep);
-        await ns.sleep(Math.max(weakenTime, growTime, hackTime));
+        await ns.sleep(Math.max(weakenTime, growTime, hackTime) + sleepOffset);
     }
 }
 /**
@@ -105,6 +106,5 @@ function checkPid(pid) {
 * @returns {number}
 */
 function run(script, threads, target, sleep) {
-    ns.print(`Running ${script} with ${sleep}ms delay`);
     return ns.run(`/scripts/milk/${script}.js`, threads, target, sleep);
 }

@@ -14,11 +14,6 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@ts-tools/robotrix@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@ts-tools/robotrix/-/robotrix-3.0.1.tgz#ee2e1d8e37b1e80b8d5d96cd8a7bc2e1517bcdc8"
-  integrity sha512-GVMumd40jzkKt9dDRupAufcEj+wyOe7Ze47nuFSBsVkaYBOr7WGGJnaKRODnU6noZsaQ7jOKxOZr42ZJ5ch57w==
-
 "@tsconfig/node10@^1.0.7":
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/@tsconfig/node10/-/node10-1.0.8.tgz#c1e4e80d6f964fbecb3359c43bd48b40f7cadad9"

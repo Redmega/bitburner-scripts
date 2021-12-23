@@ -1,11 +1,12 @@
-import type { NS } from "types/bitburner";
-import { getServers, cmd } from "scripts/util";
+import type { NS } from "types/NetscriptDefinitions";
+import { getServers, cmd } from "/scripts/util.js";
 
 /**
  * Generates a connection path and copies it to the clipboard
  */
+type Args = [target: string];
 export async function main(ns: NS) {
-  const target = ns.args[0];
+  const [target] = ns.args as Args;
 
   if (typeof target !== "string") throw new Error("Invalid target.");
 

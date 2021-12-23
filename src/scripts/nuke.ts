@@ -1,10 +1,9 @@
 /**
  * Copied from somewhere but I can't remember right now
  * */
+import type { NS } from "types/NetscriptDefinitions";
 
-import type { NS } from "types/bitburner";
-import type { IServer } from "types/scripts";
-import { getServers } from "scripts/util";
+import { getServers } from "/scripts/util.js";
 
 const PORT_OPENING_PROGRAMS = [
   "BruteSSH.exe",

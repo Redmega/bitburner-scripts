@@ -1,6 +1,3 @@
-/**
- * Copied from somewhere but I can't remember right now
- * */
 import { getServers } from "/scripts/util.js";
 const PORT_OPENING_PROGRAMS = [
     "BruteSSH.exe",

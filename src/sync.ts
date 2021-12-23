@@ -1,5 +1,5 @@
-import { Cheat } from "scripts/util";
-import type { NS } from "types/bitburner";
+import { Cheat } from "/scripts/util.js";
+import type { NS } from "types/NetscriptDefinitions";
 
 interface GithubContentResponse {
   path: string;
