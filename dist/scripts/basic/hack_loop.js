@@ -3,7 +3,9 @@ export async function main(ns) {
     const [target] = ns.args;
     const maxMoney = ns.getServerMaxMoney(target);
     // First, weaken to 0
-    await ns.weaken(target, { threads: 2000 });
+    const weakenTime = ns.getWeakenTime(target);
+    ns.run("/scripts/milk/weaken.js", 2000, target);
+    await ns.sleep(weakenTime + 1000);
     while (true) {
         const availableMoney = ns.getServerMoneyAvailable(target) || 0.01;
         const hackThreads = ns.hackAnalyzeThreads(target, availableMoney);
