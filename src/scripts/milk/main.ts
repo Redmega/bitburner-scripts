@@ -4,127 +4,101 @@ import { IServer } from "types/scripts";
 
 let ns: NS;
 
-const RUNNING_PROCESSES = {
-  hack: {
-    pid: 0,
-    time: 0,
-    started: 0,
-  },
-  grow: {
-    pid: 0,
-    time: 0,
-    started: 0,
-  },
-  weaken: {
-    pid: 0,
-    time: 0,
-    started: 0,
-  },
-};
-
 export async function main(_ns: NS) {
   ns = _ns;
+  const { name, maxMoney } = findOptimal(getServers(ns).filter((s) => s.root));
 
-  let activeServer = "";
+  let availableMoney = ns.getServerMoneyAvailable(name);
+
+  let growThreads = Math.ceil(
+    ns.growthAnalyze(
+      name,
+      Math.floor(maxMoney / availableMoney),
+      ns.getServer("home").cpuCores
+    )
+  );
+
+  /**
+   * Priming the server
+   */
+  if (availableMoney < maxMoney) {
+    const [weakenTime, growTime] = [
+      ns.getWeakenTime(name),
+      ns.getGrowTime(name),
+    ];
+
+    const scripts = [
+      // Pass max weaken threads because weakenThreads accounts for currentSecurity.
+      ["weaken", 2000, name, 0],
+      ["grow", growThreads, name, 0],
+    ];
+    if (weakenTime < growTime) {
+      scripts[0][3] = 1000 + (growTime - weakenTime);
+    }
+
+    // @ts-ignore
+    scripts.forEach((s) => run(...s));
+    await ns.sleep(Math.max(weakenTime, growTime) + 1000);
+
+    availableMoney = ns.getServerMoneyAvailable(name);
+  }
+
+  /**
+   * Security Check
+   */
+  const minSecurity = ns.getServerMinSecurityLevel(name);
+  let currentSecurity = ns.getServerSecurityLevel(name);
+
+  // We double check that security is min value
+  if (currentSecurity > minSecurity) {
+    const weakenTime = ns.getWeakenTime(name);
+
+    run("weaken", 2000, name, 0);
+    await ns.sleep(weakenTime + 1000);
+
+    currentSecurity = ns.getServerSecurityLevel(name);
+  }
+
+  /**
+   * Main Hack Loop
+   */
+  const player = ns.getPlayer();
+  const server = ns.getServer(name);
+
+  growThreads = Math.ceil(
+    5 /
+      (ns.formulas.hacking.growPercent(
+        server,
+        1,
+        player,
+        ns.getServer("home").cpuCores
+      ) -
+        1)
+  );
+  const hackThreads = ns.hackAnalyzeThreads(name, availableMoney);
+  const weakenThreads = Math.ceil(
+    (currentSecurity - minSecurity) / 0.05 - growThreads * 0.004
+  );
+
+  const weakenTime = ns.getWeakenTime(name);
+  const growTime = ns.getGrowTime(name);
+  const hackTime = ns.getHackTime(name);
+
+  const sleepOffset = 5000;
 
   while (true) {
-    const servers = getServers(ns).filter((s) => s.root);
-    const bestServer = findOptimal(servers);
+    let weakenSleep = 0;
+    let growSleep = weakenTime - growTime;
+    let hackSleep = weakenTime - hackTime;
 
-    if (bestServer.name !== activeServer) {
-      ns.tprintf('Milking "%s"', bestServer.name);
-      for (const [process, { pid }] of Object.entries(RUNNING_PROCESSES)) {
-        if (pid) ns.kill(pid, "home");
-        RUNNING_PROCESSES[process] = { pid: 0, time: 0 };
-      }
-      activeServer = bestServer.name;
-    }
+    ns.print(`Weaken duration: ${weakenTime}`);
+    run("weaken", weakenThreads, name, weakenSleep);
+    ns.print(`Grow duration: ${growTime}`);
+    run("grow", growThreads, name, growSleep);
+    ns.print(`Hack duration: ${hackTime}`);
+    run("hack", hackThreads, name, hackSleep);
 
-    const availableMoney = ns.getServerMoneyAvailable(bestServer.name);
-
-    const hackThreads = ns.hackAnalyzeThreads(
-      bestServer.name,
-      bestServer.maxMoney
-    );
-    const weakenThreads = 2000;
-    const growthThreads = Math.ceil(
-      ns.growthAnalyze(
-        bestServer.name,
-        bestServer.maxMoney / availableMoney,
-        ns.getServer("home").cpuCores
-      )
-    );
-
-    for (const process in RUNNING_PROCESSES) {
-      if (!checkPid(RUNNING_PROCESSES[process])) {
-        RUNNING_PROCESSES[process] = { pid: 0, time: 0 };
-      }
-    }
-
-    const growTime = ns.getGrowTime(bestServer.name);
-    const growFinish = Date.now() + growTime;
-    if (!RUNNING_PROCESSES.grow.pid && availableMoney < bestServer.maxMoney) {
-      const pid = ns.run(
-        "/scripts/milk/grow.js",
-        growthThreads,
-        bestServer.name
-      );
-      if (pid)
-        RUNNING_PROCESSES.grow = {
-          pid,
-          time: growTime,
-          started: growFinish - growTime,
-        };
-    }
-
-    const weakenTime = ns.getWeakenTime(bestServer.name);
-    const weakenFinish = Date.now() + weakenTime;
-    if (
-      !RUNNING_PROCESSES.weaken.pid &&
-      (!RUNNING_PROCESSES.grow.pid || growFinish < weakenFinish) &&
-      ns.getServerSecurityLevel(bestServer.name) >
-        ns.getServerMinSecurityLevel(bestServer.name)
-    ) {
-      const pid = ns.run(
-        "/scripts/milk/weaken.js",
-        weakenThreads,
-        bestServer.name
-      );
-      if (pid)
-        RUNNING_PROCESSES.weaken = {
-          pid,
-          time: weakenTime,
-          started: weakenFinish - weakenTime,
-        };
-    }
-
-    const hackTime = ns.getHackTime(bestServer.name);
-    const hackFinish = Date.now() + hackTime;
-    if (
-      hackThreads > 0 &&
-      !RUNNING_PROCESSES.hack.pid &&
-      !RUNNING_PROCESSES.grow.pid &&
-      (!RUNNING_PROCESSES.weaken.pid || weakenFinish <= hackFinish)
-    ) {
-      const pid = ns.run("/scripts/milk/hack.js", hackThreads, bestServer.name);
-      if (pid)
-        RUNNING_PROCESSES.hack = {
-          pid,
-          time: hackTime,
-          started: hackFinish - hackTime,
-        };
-    }
-
-    const now = Date.now();
-    await ns.sleep(
-      Math.max(
-        5000,
-        Math.min(
-          growTime + now - RUNNING_PROCESSES.grow.started,
-          weakenTime + now - RUNNING_PROCESSES.weaken.started
-        )
-      )
-    );
+    await ns.sleep(Math.max(weakenTime, growTime, hackTime));
   }
 }
 
@@ -148,7 +122,7 @@ function findOptimal(servers: IServer[]) {
       ns.getHackTime(name)
     );
     const workRatio = maxMoney / cycleTime;
-    if (workRatio >= optimalRatio) {
+    if (workRatio > optimalRatio) {
       optimalRatio = workRatio;
       optimalServer = server;
     }
@@ -161,4 +135,17 @@ function findOptimal(servers: IServer[]) {
  */
 function checkPid(pid: number) {
   return ns.getRunningScript(pid, "home");
+}
+
+/**
+ * Helper so we don't have to keep writing our script paths
+ */
+function run(
+  script: "grow" | "hack" | "weaken",
+  threads: number,
+  target: string,
+  sleep: number
+) {
+  ns.print(`Running ${script} with ${sleep}ms delay`);
+  return ns.run(`/scripts/milk/${script}.js`, threads, target, sleep);
 }

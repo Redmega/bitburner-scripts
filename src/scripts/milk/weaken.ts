@@ -1,5 +1,7 @@
 import type { NS } from "types/bitburner";
 
-export async function main(ns: NS) {
-  return ns.weaken(ns.args[0] as string, { threads: ns.args[1] as number });
+export async function main(ns: NS<[string, number]>) {
+  const [server, sleep = 1000] = ns.args;
+  await ns.sleep(sleep);
+  return ns.weaken(server);
 }

@@ -1,4 +1,6 @@
-/** @param {NS} ns*/
+/** @param {NS<[string, number]>} ns*/
 export async function main(ns) {
-    return ns.grow(ns.args[0], { threads: ns.args[1] });
+    const [server, sleep = 1000] = ns.args;
+    await ns.sleep(sleep);
+    return ns.grow(server);
 }
