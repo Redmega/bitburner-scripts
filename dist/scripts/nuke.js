@@ -1,12 +1,5 @@
 import { getServers } from "/scripts/util.js";
-const PORT_OPENING_PROGRAMS = [
-    "BruteSSH.exe",
-    "FTPCrack.exe",
-    "relaySMTP.exe",
-    "HTTPWorm.exe",
-    "SQLInject.exe",
-    "XX",
-];
+const PORT_OPENING_PROGRAMS = ["BruteSSH.exe", "FTPCrack.exe", "relaySMTP.exe", "HTTPWorm.exe", "SQLInject.exe", "XX"];
 /** @param {NS} ns*/
 export async function main(ns) {
     //Initialise
@@ -54,7 +47,7 @@ export async function main(ns) {
                     ns.sqlinject(server.name);
                 ns.nuke(server.name);
                 ns.tprint(`Nuked: ${server.name}`);
-                servers = servers.filter((s) => !s.root);
+                servers = servers.filter((s) => s.name !== server.name);
             }
         }
         ns.tprint(`Waiting until hacking:${hackThreshold} or ${portThreshold} hacking programs`);
