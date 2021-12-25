@@ -1,11 +1,7 @@
 import { NS } from "types/NetscriptDefinitions";
 
-let ns: NS;
-
 type Args = [target: string];
-export async function main(_ns: NS) {
-  ns = _ns;
-
+export async function main(ns: NS) {
   const [target] = ns.args as Args;
 
   const maxMoney = ns.getServerMaxMoney(target);
@@ -13,7 +9,7 @@ export async function main(_ns: NS) {
   // First, weaken to 0 if needed
   if (ns.getServerSecurityLevel(target) > ns.getServerMinSecurityLevel(target)) {
     const weakenTime = ns.getWeakenTime(target);
-    run("weaken", 2000, target);
+    run(ns, "weaken", 2000, target);
     await ns.sleep(weakenTime + 1000);
   }
 
@@ -28,17 +24,22 @@ export async function main(_ns: NS) {
     const weakenGrowThreads = Math.ceil(growSecurity / 0.05);
     const weakenHackThreads = Math.ceil(hackSecurity / 0.05);
 
-    const maxTime = cycle(target, { growThreads, weakenGrowThreads, weakenHackThreads, hackThreads });
+    const maxTime = cycle(ns, target, { growThreads, weakenGrowThreads, weakenHackThreads, hackThreads });
 
     await ns.sleep(maxTime);
   }
 }
 
-function cycle(target: string, { growThreads, weakenGrowThreads, weakenHackThreads, hackThreads }, delay: number = 0): number {
+function cycle(
+  ns: NS,
+  target: string,
+  { growThreads, weakenGrowThreads, weakenHackThreads, hackThreads },
+  delay: number = 0
+): number {
   // grow ->
   const growTime = ns.getGrowTime(target);
   let growOffset = delay;
-  run("grow", growThreads, target, growOffset);
+  run(ns, "grow", growThreads, target, growOffset);
   // ns.tprint(`Grow planned time: ${growTime / 1000}s`);
 
   // weaken ->
@@ -47,7 +48,7 @@ function cycle(target: string, { growThreads, weakenGrowThreads, weakenHackThrea
   if (weakenTime < growTime + growOffset) {
     weakenOffset += growOffset + growTime - weakenTime + 1000;
   }
-  run("weaken", weakenGrowThreads, target, weakenOffset);
+  run(ns, "weaken", weakenGrowThreads, target, weakenOffset);
   // ns.tprint(`Weaken planned time: ${weakenTime / 1000}s after ${weakenOffset / 1000}s delay`);
 
   // hack ->
@@ -56,19 +57,19 @@ function cycle(target: string, { growThreads, weakenGrowThreads, weakenHackThrea
   if (hackTime < weakenTime + weakenOffset) {
     hackOffset += weakenOffset + weakenTime - hackTime + 1000;
   }
-  run("hack", hackThreads, target, hackOffset);
+  run(ns, "hack", hackThreads, target, hackOffset);
   // ns.tprint(`Hack planned time: ${hackTime / 1000}s after ${hackOffset / 1000}s delay`);
 
   // weaken ->
   if (weakenTime < hackTime + hackOffset) {
     weakenOffset += hackOffset + hackTime - weakenTime + 1000;
   }
-  run("weaken", weakenHackThreads, target, weakenOffset);
+  run(ns, "weaken", weakenHackThreads, target, weakenOffset);
   // ns.tprint(`Weaken planned time: ${weakenTime / 1000}s after ${weakenOffset / 1000}s delay`);
 
   return Math.max(weakenTime + weakenOffset, hackTime + hackOffset, growTime) + 1000;
 }
 
-function run(script: "hack" | "grow" | "weaken", threads: number, target: string, delay: number = 0) {
+function run(ns: NS, script: "hack" | "grow" | "weaken", threads: number, target: string, delay: number = 0) {
   return ns.run(`/scripts/milk/${script}.js`, threads, target, delay);
 }
