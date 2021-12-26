@@ -2,10 +2,14 @@
 
 import { NS } from "types/NetscriptDefinitions";
 
+const doc = globalThis["document"];
+const win = globalThis["window"];
+
 export async function main(ns: NS) {
   const repl = new REPL(ns);
   // @ts-ignore
-  window.repl = repl;
+  win.repl = repl;
+
   repl.mount();
 
   while (true) {
@@ -30,18 +34,18 @@ class REPL {
 
   // FIXME: Probably brittle and will break at any update (possibly even between launches)
   mount() {
-    this.wrapper = document.createElement("form");
+    this.wrapper = doc.createElement("form");
     this.wrapper.className = "MuiCollapse-wrapperInner MuiCollapse-vertical css-8atqhb repl-wrapper";
 
-    this.log = document.createElement("div");
+    this.log = doc.createElement("div");
     this.log.className = "MuiBox-root css-1c5ij41 repl-log MuiTypography-root MuiTypography-body1 css-14bb8ng";
-    const inputContainer = document.createElement("div");
+    const inputContainer = doc.createElement("div");
     inputContainer.className = "MuiTypography-root MuiTypography-body1 css-14bb8ng repl-input-wrapper";
-    const replPreText = document.createElement("span");
+    const replPreText = doc.createElement("span");
     replPreText.textContent = "REPL >>";
     inputContainer.appendChild(replPreText);
 
-    this.input = document.createElement("input");
+    this.input = doc.createElement("input");
     this.input.type = "text";
     this.input.id = "repl-input";
     this.input.className = "repl-input css-1oaunmp";
@@ -101,14 +105,14 @@ class REPL {
     inputContainer.appendChild(this.input);
     this.wrapper.appendChild(this.log);
     this.wrapper.appendChild(inputContainer);
-    this.menu = document.querySelector(
+    this.menu = doc.querySelector(
       "div.MuiPaper-root.MuiPaper-elevation.MuiPaper-elevation1 div.MuiCollapse-wrapper.MuiCollapse-vertical.css-hboir5"
     );
     this.menu.children[0].classList.remove("css-8atqhb"); // Remove the width: 100%; from the other menu piece
     this.menu.parentElement.parentElement.style.left = "0";
     this.menu.prepend(this.wrapper);
 
-    document.addEventListener("keydown", this.overrideKeydown);
+    doc.addEventListener("keydown", this.overrideKeydown);
     this.wrapper.addEventListener("click", this.focusInput);
     this.wrapper.addEventListener("submit", this.formSubmit);
   }
@@ -120,10 +124,10 @@ class REPL {
     this.wrapper.removeEventListener("click", this.focusInput);
     this.wrapper.removeEventListener("submit", this.formSubmit);
     this.wrapper.remove();
-    document.removeEventListener("keydown", this.overrideKeydown);
+    doc.removeEventListener("keydown", this.overrideKeydown);
   }
 
-  async run(command: string) {
+  async runCommand(command: string) {
     try {
       const ns = this.ns;
 
@@ -131,7 +135,7 @@ class REPL {
       const result = await eval(command);
       this.printResult(result);
     } catch (error) {
-      window.console.error(error);
+      win.console.error(error);
       this.printResult(error.toString(), "error");
     }
   }
@@ -144,7 +148,7 @@ class REPL {
       text = result;
     }
 
-    const line = document.createElement("p");
+    const line = doc.createElement("p");
     line.className = "MuiTypography-root MuiTypography-body1 css-18ubon4 repl-line";
     line.classList.add(className);
     line.textContent = text;
@@ -156,17 +160,17 @@ class REPL {
   }
 
   private addStyleSheet(key: string, content: string) {
-    let sheet = document.querySelector(`style[data-key="${key}"]`) as HTMLStyleElement;
+    let sheet = doc.querySelector(`style[data-key="${key}"]`) as HTMLStyleElement;
     if (!sheet) {
-      sheet = document.createElement("style");
+      sheet = doc.createElement("style");
       sheet.dataset.key = key;
-      document.head.appendChild(sheet);
+      doc.head.appendChild(sheet);
     }
     sheet.textContent = content;
   }
 
   private removeStyleSheet(key: string) {
-    document.querySelector(`style[data-key="${key}"]`)?.remove();
+    doc.querySelector(`style[data-key="${key}"]`)?.remove();
   }
 
   private overrideKeydown = (event: KeyboardEvent) => {
@@ -191,7 +195,7 @@ class REPL {
 
     const command = this.input.value;
 
-    this.run(command);
+    this.runCommand(command);
 
     this.input.value = "";
     this.input.focus();
