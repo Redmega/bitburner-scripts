@@ -3,6 +3,7 @@ const doc = globalThis["document"];
 const win = globalThis["window"];
 /** @param {NS} ns*/
 export async function main(ns) {
+    ns.createProgram; // For the RAM
     const repl = new REPL(ns);
     // @ts-ignore
     win.repl = repl;
