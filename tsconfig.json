@@ -3,13 +3,7 @@
     "plugins": [{ "transform": "./transformers/add-jsdoc.ts" }],
     "module": "esnext",
     "moduleResolution": "node",
-    "lib": [
-      "ES6",
-      "ES2016.Array.Include",
-      "ES2017.Object",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES6", "ES2016.Array.Include", "ES2017.Object", "DOM", "DOM.Iterable"],
     "target": "ES2019",
     "baseUrl": ".",
     "removeComments": false,
