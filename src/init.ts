@@ -18,7 +18,7 @@ const REQUIRED_STARTUP_SCRIPTS = [
 export async function main(ns: NS) {
   ns.tprintf("INFO Initializing Required Scripts");
   for (const [url, path] of REQUIRED_STARTUP_SCRIPTS) {
-    const success = await ns.wget(url, path);
+    const success = await ns.wget(`${url}?t=${Date.now()}`, path);
     if (!success) {
       ns.tprintf("ERROR Failed to download required script: %s", path);
     }
