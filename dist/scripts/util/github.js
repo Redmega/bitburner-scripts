@@ -5,11 +5,11 @@ export default class Github {
         this.ns = ns;
         // Generate Headers
         const token = ns.read(Github.TOKEN_PATH);
-        if (!token || !/\w+:.+/.test(token)) {
-            ns.print("WARN Token not found or malformed. Using unauthenticated requests.");
+        if (!token) {
+            ns.print("WARN Token not found. Using unauthenticated requests.");
         }
         else {
-            this.headers.append("Authorization", `Bearer ${token}`);
+            this.headers.append("Authorization", `token ${token}`);
         }
         const lastFetched = ns.read(Github.LAST_FETCH_TIME_PATH);
         if (lastFetched) {
