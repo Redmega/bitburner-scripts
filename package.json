@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "ttsc",
+    "dev": "ttsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "yarn build && git add dist/* && git commit -m 'deploy: update scripts' && git push"
   },

@@ -1,5 +1,6 @@
 import type { NS } from "types/NetscriptDefinitions";
-import { getServers, cmd } from "/scripts/util.js";
+import { getServers } from "/scripts/util/game.js";
+import { cmd } from "/scripts/util/dom.js";
 
 /**
  * Generates a connection path and copies it to the clipboard

@@ -1,4 +1,4 @@
-import { getServers } from "/scripts/util.js";
+import { getServers } from "/scripts/util/game.js";
 const FACTION_SERVERS = {
     home: "🏠",
     CSEC: " 🌐",

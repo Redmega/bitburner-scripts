@@ -8,12 +8,14 @@ export async function main(ns) {
     // @ts-ignore
     win.repl = repl;
     repl.mount();
+    ns.atExit(() => repl.unmount());
     while (true) {
         await ns.asleep(30000);
     }
 }
 class REPL {
     constructor(ns) {
+        this.version = "v0.0.1";
         this.overrideKeydown = (event) => {
             var _a;
             const isReplEvent = event.composedPath().some((e) => e === this.input);
@@ -38,16 +40,13 @@ class REPL {
             this.input.focus();
         };
         this.ns = ns;
-        ns.atExit(() => {
-            this.unmount();
-        });
     }
     // FIXME: Probably brittle and will break at any update (possibly even between launches)
     mount() {
         this.wrapper = doc.createElement("form");
         this.wrapper.className = "MuiCollapse-wrapperInner MuiCollapse-vertical css-8atqhb repl-wrapper";
         this.log = doc.createElement("div");
-        this.log.className = "MuiBox-root css-1c5ij41 repl-log MuiTypography-root MuiTypography-body1 css-14bb8ng";
+        this.log.className = "MuiBox-root repl-log MuiTypography-root MuiTypography-body1 css-14bb8ng";
         const inputContainer = doc.createElement("div");
         inputContainer.className = "MuiTypography-root MuiTypography-body1 css-14bb8ng repl-input-wrapper";
         const replPreText = doc.createElement("span");
@@ -62,13 +61,16 @@ class REPL {
         border-right: 1px solid rgb(68, 68, 68);
         display: flex;
         flex-direction: column;
-        max-height: 398px;
+        max-height: 312px;
+        padding: 0 0.5rem;
       }
 
       .repl-log {
         overflow-y: auto;
         flex: 1;
-        padding: 0 0.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
       }
 
       .repl-line {
@@ -80,17 +82,17 @@ class REPL {
         color: #c00;
       }
 
-      /* .repl-log::-webkit-scrollbar {
-        display: unset;
-        background-color: #4d5d4e;
+      .repl-line.info {
+        color: #36c;
       }
 
-      
-      .repl-log::-webkit-scrollbar-thumb {
-        -webkit-border-radius: 10px;
-        background: rgb(7 156 7);
-        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
-    }*/
+      .repl-line.success {
+        color: #0c0;
+      }
+
+      .repl-line.warn {
+        color: #cc0;
+      }
 
       .repl-input-wrapper {
         display: flex;
@@ -115,6 +117,8 @@ class REPL {
         doc.addEventListener("keydown", this.overrideKeydown);
         this.wrapper.addEventListener("click", this.focusInput);
         this.wrapper.addEventListener("submit", this.formSubmit);
+        this.printLine(`BitburnerOS REPL ${this.version}`);
+        this.printLine('Type "exit" to quit.');
     }
     unmount() {
         this.removeStyleSheet("repl");
@@ -131,20 +135,20 @@ class REPL {
             if (command === "exit")
                 command = "ns.exit()";
             const result = await eval(command);
-            this.printResult(result);
+            this.printLine(result);
         }
         catch (error) {
             win.console.error(error);
-            this.printResult(error.toString(), "error");
+            this.printLine(error.toString(), "error");
         }
     }
-    printResult(result, className) {
+    printLine(value, className) {
         let text;
-        if (typeof result === "object") {
-            text = JSON.stringify(result);
+        if (typeof value === "object") {
+            text = JSON.stringify(value);
         }
         else {
-            text = result;
+            text = value;
         }
         const line = doc.createElement("p");
         line.className = "MuiTypography-root MuiTypography-body1 css-18ubon4 repl-line";

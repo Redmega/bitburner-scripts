@@ -1,7 +1,8 @@
-import { cmd } from "/scripts/util.js";
+import { cmd } from "/scripts/util/dom.js";
 /** @param {NS} ns*/
 export async function main(ns) {
     if (ns.scan().indexOf("darkweb") < 0) {
+        // @TODO: Buy TOR Router automatically
         ns.tprintf("Buy a TOR router first!");
         return;
     }
@@ -18,8 +19,6 @@ export async function main(ns) {
         "AutoLink.exe",
         "Formulas.exe",
     ];
-    const command = `connect darkweb; ${programs
-        .map((program) => `buy ${program}; `)
-        .join("")} connect home;`;
+    const command = programs.map((program) => `buy ${program}; `).join("");
     cmd(command);
 }

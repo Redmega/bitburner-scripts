@@ -3,7 +3,6 @@ export interface IServer {
   depth: number;
   root: boolean;
   path: string[];
-  maxMoney: number;
   requiredHackingLevel: number;
   requiredOpenPorts: number;
 }

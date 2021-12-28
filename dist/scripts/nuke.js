@@ -1,5 +1,12 @@
-import { getServers } from "/scripts/util.js";
-const PORT_OPENING_PROGRAMS = ["BruteSSH.exe", "FTPCrack.exe", "relaySMTP.exe", "HTTPWorm.exe", "SQLInject.exe", "XX"];
+import { getServers } from "/scripts/util/game.js";
+const PORT_OPENING_PROGRAMS = [
+    "BruteSSH.exe",
+    "FTPCrack.exe",
+    "relaySMTP.exe",
+    "HTTPWorm.exe",
+    "SQLInject.exe",
+    "XX",
+];
 /** @param {NS} ns*/
 export async function main(ns) {
     //Initialise
@@ -24,7 +31,7 @@ export async function main(ns) {
             await ns.sleep(10000);
         }
         hackThreshold = myHackLevel + 1;
-        portThreshold = numBusters + 1;
+        portThreshold = Math.max(5, numBusters + 1);
         //Try nuking servers
         for (const server of servers) {
             if (server.requiredHackingLevel > myHackLevel) {
@@ -50,7 +57,12 @@ export async function main(ns) {
                 servers = servers.filter((s) => s.name !== server.name);
             }
         }
-        ns.tprint(`Waiting until hacking:${hackThreshold} or ${portThreshold} hacking programs`);
+        if (portThreshold === numBusters) {
+            ns.tprintf("Waiting until hacking:%d", hackThreshold);
+        }
+        else {
+            ns.tprintf("Waiting until hacking:%d or %d port busters", hackThreshold, portThreshold);
+        }
     }
     ns.tprintf("SUCCESS All servers nuked");
 }

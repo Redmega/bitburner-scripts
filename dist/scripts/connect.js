@@ -1,4 +1,5 @@
-import { getServers, cmd } from "/scripts/util.js";
+import { getServers } from "/scripts/util/game.js";
+import { cmd } from "/scripts/util/dom.js";
 /** @param {NS} ns*/
 export async function main(ns) {
     const [target] = ns.args;

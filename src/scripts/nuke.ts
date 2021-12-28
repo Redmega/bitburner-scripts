@@ -3,9 +3,16 @@
  * */
 import type { NS } from "types/NetscriptDefinitions";
 
-import { getServers } from "/scripts/util.js";
+import { getServers } from "/scripts/util/game.js";
 
-const PORT_OPENING_PROGRAMS = ["BruteSSH.exe", "FTPCrack.exe", "relaySMTP.exe", "HTTPWorm.exe", "SQLInject.exe", "XX"];
+const PORT_OPENING_PROGRAMS = [
+  "BruteSSH.exe",
+  "FTPCrack.exe",
+  "relaySMTP.exe",
+  "HTTPWorm.exe",
+  "SQLInject.exe",
+  "XX",
+];
 
 export async function main(ns: NS) {
   //Initialise
@@ -28,12 +35,16 @@ export async function main(ns: NS) {
     //Wait till hacking or busters crosses threshold
     while (myHackLevel < hackThreshold && numBusters < portThreshold) {
       myHackLevel = ns.getHackingLevel();
-      for (; ns.fileExists(PORT_OPENING_PROGRAMS[numBusters], "home"); numBusters++);
+      for (
+        ;
+        ns.fileExists(PORT_OPENING_PROGRAMS[numBusters], "home");
+        numBusters++
+      );
       await ns.sleep(10000);
     }
 
     hackThreshold = myHackLevel + 1;
-    portThreshold = numBusters + 1;
+    portThreshold = Math.max(5, numBusters + 1);
 
     //Try nuking servers
     for (const server of servers) {
@@ -53,7 +64,16 @@ export async function main(ns: NS) {
         servers = servers.filter((s) => s.name !== server.name);
       }
     }
-    ns.tprint(`Waiting until hacking:${hackThreshold} or ${portThreshold} hacking programs`);
+
+    if (portThreshold === numBusters) {
+      ns.tprintf("Waiting until hacking:%d", hackThreshold);
+    } else {
+      ns.tprintf(
+        "Waiting until hacking:%d or %d port busters",
+        hackThreshold,
+        portThreshold
+      );
+    }
   }
   ns.tprintf("SUCCESS All servers nuked");
 }

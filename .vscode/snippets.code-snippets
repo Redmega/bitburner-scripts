@@ -3,7 +3,7 @@
     "scope": "typescript",
     "prefix": ["ns"],
     "body": [
-      "import { NS } from \"types/NetscriptDefinitions\"",
+      "import type { NS } from \"types/NetscriptDefinitions\"",
       "",
       "export async function main(ns: NS) {",
       "  $0",

@@ -1,47 +1,50 @@
-import { Cheat } from "/scripts/util.js";
+import Github from "/scripts/util/github.js";
 import type { NS } from "types/NetscriptDefinitions";
 
-interface GithubContentResponse {
-  path: string;
-  type: string;
-  download_url: string;
-}
-
-const getGithubApiUrl = (path) =>
-  `https://api.github.com/repos/redmega/bitburner-scripts/contents/${path}`;
-
-async function fetchFiles(path: string) {
-  const response = await Cheat.win.fetch(getGithubApiUrl(path));
-  let body: GithubContentResponse[] = await response.json();
-
-  for (const item of body) {
-    if (item.type === "dir") {
-      body.push(...(await fetchFiles(item.path)));
-    }
-  }
-
-  return body.filter((item) => item.type === "file");
-}
-
 export async function main(ns: NS) {
-  const files = await fetchFiles("dist/scripts");
+  const startedAt = new Date().toUTCString();
+
+  ns.tprintf("INFO Initializing GitHub Connection");
+
+  const github = new Github(ns);
+
+  ns.tprintf("INFO Fetching contents from GitHub Repo");
+
+  const files = await github.fetchContents("dist/scripts", { recursive: true });
+
+  ns.tprintf("INFO Downloading %d files", files.length);
+
   const processes = ns.ps();
   for (const file of files) {
     const path = file.path.replace("dist", "");
     const process = processes.find((p) => p.filename === path);
-    ns.tprintf("INFO Downloading %s", path);
 
     if (process) {
-      ns.tprintf("WARN Killing %s", path);
-      ns.scriptKill(path, "home");
+      ns.tprintf("WARN Killing %s before download", path);
+      const success = ns.scriptKill(path, "home");
+      if (!success) {
+        ns.tprintf("ERROR Failed to kill %s. Skipping...", path);
+        continue;
+      }
     }
 
-    await ns.wget(`${file.download_url}?t=${Date.now()}`, path);
+    ns.tprintf("INFO Downloading %s", path);
+    const success = await ns.wget(`${file.download_url}?t=${Date.now()}`, path);
+    if (!success) {
+      ns.tprintf("ERROR Failed to download %s", path);
+      continue;
+    }
+
     if (process?.args.includes("--restart")) {
-      ns.run(path, process.threads, ...process.args);
-      ns.tprintf("SUCCESS Restarted %s", path);
+      const pid = ns.run(path, process.threads, ...process.args);
+      if (pid > 0) {
+        ns.tprintf("SUCCESS Restarted %s", path);
+      } else {
+        ns.tprintf("WARN Failed to restart %s", path);
+      }
     }
   }
 
+  await github.updateLastFetched(startedAt);
   ns.tprintf("SUCCESS Downloaded %d files", files.length);
 }
