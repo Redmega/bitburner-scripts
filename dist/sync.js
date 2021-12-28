@@ -20,7 +20,7 @@ export async function main(ns) {
             }
         }
         ns.tprintf("INFO Downloading %s", path);
-        const success = await ns.wget(`${file.download_url}?t=${Date.now()}`, path);
+        const success = await ns.wget(`${file.download_url}`, path);
         if (!success) {
             ns.tprintf("ERROR Failed to download %s", path);
             continue;

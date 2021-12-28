@@ -43,7 +43,9 @@ export default class Github {
   }
 
   async fetchContents(path: string, { recursive }: FetchOptions) {
-    const response = await Cheat.win.fetch(`${this.contentUrl}/${path}`);
+    const response = await Cheat.win.fetch(`${this.contentUrl}/${path}`, {
+      headers: this.headers,
+    });
     const body: GithubContentResponse[] = await response.json();
 
     let files = [...body.filter((item) => item.type === "file")];

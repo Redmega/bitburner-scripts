@@ -21,7 +21,9 @@ export default class Github {
         return this.ns.write(Github.LAST_FETCH_TIME_PATH, [date], "w");
     }
     async fetchContents(path, { recursive }) {
-        const response = await Cheat.win.fetch(`${this.contentUrl}/${path}`);
+        const response = await Cheat.win.fetch(`${this.contentUrl}/${path}`, {
+            headers: this.headers,
+        });
         const body = await response.json();
         let files = [...body.filter((item) => item.type === "file")];
         if (recursive) {
