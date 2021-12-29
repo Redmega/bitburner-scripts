@@ -9,6 +9,10 @@ export class Cheat {
   static get win() {
     return globalThis as typeof window;
   }
+
+  static get analytics() {
+    return Cheat.win.analytics;
+  }
 }
 
 /**

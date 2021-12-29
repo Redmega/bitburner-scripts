@@ -4022,7 +4022,7 @@ export interface NS extends Singularity {
    * It is also possible to get the number of arguments that was passed into a script using: 'args.length'
    * WARNING: Do not try to modify the args array. This will break the game.
    */
-  readonly args: (string | number | boolean)[];
+  readonly args: (string | number)[];
 
   /**
    * Steal a servers money.
@@ -4647,7 +4647,11 @@ export interface NS extends Singularity {
    * @param args - Additional arguments to pass into the new script that is being run. Note that if any arguments are being passed into the new script, then the second argument numThreads must be filled in with a value.
    * @returns Returns the PID of a successfully started script, and 0 otherwise.
    */
-  run(script: string, numThreads?: number, ...args: (string | number)[]): number;
+  run(
+    script: string,
+    numThreads?: number,
+    ...args: (string | number)[]
+  ): number;
 
   /**
    * Start another script on any server.

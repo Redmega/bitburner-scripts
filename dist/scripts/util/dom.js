@@ -8,6 +8,9 @@ export class Cheat {
     static get win() {
         return globalThis;
     }
+    static get analytics() {
+        return Cheat.win.analytics;
+    }
 }
 /**
  * Run a command in the terminal
