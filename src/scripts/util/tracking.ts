@@ -30,7 +30,7 @@ export async function main(ns: NS) {
   });
 
   while (true) {
-    ns.asleep(60000);
+    await ns.asleep(60000);
   }
 }
 
