@@ -25,6 +25,10 @@ export async function main(ns: NS) {
 
   analytics.init();
 
+  ns.atExit(() => {
+    analytics.destroy();
+  });
+
   while (true) {
     ns.asleep(60000);
   }
@@ -54,11 +58,17 @@ class Analytics {
     window.analytics = this;
   }
 
+  destroy() {
+    window.analytics = undefined;
+  }
+
   async track(
     event_type: ITrackingEvent["event_type"],
     event_properties: ITrackingEvent["event_properties"],
     time = Date.now()
   ) {
+    if (!this.apiKey) return;
+
     const response = await Cheat.win.fetch(Analytics.URL, {
       method: "POST",
       headers: this.headers,

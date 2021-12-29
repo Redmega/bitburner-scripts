@@ -4,6 +4,9 @@ export async function main(ns) {
     // Setup analytics
     const analytics = new Analytics(ns);
     analytics.init();
+    ns.atExit(() => {
+        analytics.destroy();
+    });
     while (true) {
         ns.asleep(60000);
     }
@@ -24,7 +27,12 @@ class Analytics {
     init() {
         window.analytics = this;
     }
+    destroy() {
+        window.analytics = undefined;
+    }
     async track(event_type, event_properties, time = Date.now()) {
+        if (!this.apiKey)
+            return;
         const response = await Cheat.win.fetch(Analytics.URL, {
             method: "POST",
             headers: this.headers,
