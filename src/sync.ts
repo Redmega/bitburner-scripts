@@ -19,7 +19,7 @@ export async function main(ns: NS) {
     const path = file.path.replace("dist", "");
     const process = processes.find((p) => p.filename === path);
 
-    if (process) {
+    if (process && !process.args.includes("--no-restart")) {
       ns.tprintf("WARN Killing %s before download", path);
       const success = ns.scriptKill(path, "home");
       if (!success) {
