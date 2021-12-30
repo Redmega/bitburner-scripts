@@ -7,5 +7,5 @@ export async function main(ns: NS) {
   ns.run("/scripts/util/tracking.js", 1, "--restart");
 
   // Auto nuker
-  ns.run("/scripts/util/nuke.js", 1, "--restart");
+  ns.run("/scripts/nuke.js", 1, "--restart");
 }
