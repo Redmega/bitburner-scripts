@@ -13,5 +13,6 @@ export async function main(ns) {
         duration,
         money_change: afterMoney - money,
         security_change,
+        server: target,
     });
 }

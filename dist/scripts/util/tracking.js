@@ -8,7 +8,7 @@ export async function main(ns) {
         analytics.destroy();
     });
     while (true) {
-        ns.asleep(60000);
+        await ns.asleep(60000);
     }
 }
 class Analytics {
@@ -25,10 +25,10 @@ class Analytics {
         }
     }
     init() {
-        window.analytics = this;
+        Cheat.win.analytics = this;
     }
     destroy() {
-        window.analytics = undefined;
+        Cheat.win.analytics = undefined;
     }
     async track(event_type, event_properties, time = Date.now()) {
         if (!this.apiKey)

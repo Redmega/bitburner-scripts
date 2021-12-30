@@ -21,7 +21,8 @@ export async function main(ns: NS) {
 
   Cheat.analytics.track("hack", {
     duration,
-    money_change: hack * -1,
+    money_change: hack,
     security_change,
+    server: target,
   });
 }

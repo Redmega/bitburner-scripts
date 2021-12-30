@@ -9,6 +9,7 @@ interface ITrackingEvent {
     duration: number;
     security_change?: number;
     money_change?: number;
+    server: string;
   };
 }
 
@@ -55,11 +56,11 @@ class Analytics {
   }
 
   init() {
-    window.analytics = this;
+    Cheat.win.analytics = this;
   }
 
   destroy() {
-    window.analytics = undefined;
+    Cheat.win.analytics = undefined;
   }
 
   async track(
