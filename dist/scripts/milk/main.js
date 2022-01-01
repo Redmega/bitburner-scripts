@@ -2,10 +2,10 @@
 export async function main(ns) {
     const [target] = ns.args;
     const maxMoney = ns.getServerMaxMoney(target);
-    // First, weaken to 0 if needed
+    // First, prime the server.
     if (ns.getServerSecurityLevel(target) > ns.getServerMinSecurityLevel(target)) {
         const weakenTime = ns.getWeakenTime(target);
-        run(ns, "weaken", 2000, target);
+        run(ns, "weaken", { threads: 2000, target });
         await ns.sleep(weakenTime + 1000);
     }
     while (true) {
@@ -16,26 +16,43 @@ export async function main(ns) {
         const hackSecurity = ns.hackAnalyzeSecurity(hackThreads);
         const weakenGrowThreads = Math.ceil(growSecurity / 0.05);
         const weakenHackThreads = Math.ceil(hackSecurity / 0.05);
+        // Initial cycle on home
         const maxTime = cycle(ns, target, {
             growThreads,
             weakenGrowThreads,
             weakenHackThreads,
             hackThreads,
         });
+        // Spin up cycles on purchased servers
+        for (const [i, server] of Object.entries(ns.getPurchasedServers())) {
+            await ns.scp([
+                "/scripts/util/dom.js",
+                "/scripts/milk/grow.js",
+                "/scripts/milk/hack.js",
+                "/scripts/milk/weaken.js",
+            ], "home", server);
+            cycle(ns, target, {
+                growThreads,
+                weakenGrowThreads,
+                weakenHackThreads,
+                hackThreads,
+            }, server, (1 + Number(i)) * 1000);
+        }
         await ns.sleep(maxTime);
     }
 }
 /** @param {NS} ns
 * @param {string} target
 * @param {undefined} { growThreads, weakenGrowThreads, weakenHackThreads, hackThreads }
+* @param {string} host
 * @param {number} delay* @returns {number}
 
 */
-function cycle(ns, target, { growThreads, weakenGrowThreads, weakenHackThreads, hackThreads }, delay = 0) {
+function cycle(ns, target, { growThreads, weakenGrowThreads, weakenHackThreads, hackThreads }, host = "home", delay = 0) {
     // grow ->
     const growTime = ns.getGrowTime(target);
     let growOffset = delay;
-    run(ns, "grow", growThreads, target, growOffset);
+    run(ns, "grow", { host, threads: growThreads, target, delay: growOffset });
     // ns.tprint(`Grow planned time: ${growTime / 1000}s`);
     // weaken ->
     const weakenTime = ns.getWeakenTime(target);
@@ -43,7 +60,12 @@ function cycle(ns, target, { growThreads, weakenGrowThreads, weakenHackThreads, 
     if (weakenTime < growTime + growOffset) {
         weakenOffset += growOffset + growTime - weakenTime + 1000;
     }
-    run(ns, "weaken", weakenGrowThreads, target, weakenOffset);
+    run(ns, "weaken", {
+        host,
+        threads: weakenGrowThreads,
+        target,
+        delay: weakenOffset,
+    });
     // ns.tprint(`Weaken planned time: ${weakenTime / 1000}s after ${weakenOffset / 1000}s delay`);
     // hack ->
     const hackTime = ns.getHackTime(target);
@@ -51,23 +73,26 @@ function cycle(ns, target, { growThreads, weakenGrowThreads, weakenHackThreads, 
     if (hackTime < weakenTime + weakenOffset) {
         hackOffset += weakenOffset + weakenTime - hackTime + 1000;
     }
-    run(ns, "hack", hackThreads, target, hackOffset);
+    run(ns, "hack", { host, threads: hackThreads, target, delay: hackOffset });
     // ns.tprint(`Hack planned time: ${hackTime / 1000}s after ${hackOffset / 1000}s delay`);
     // weaken ->
     if (weakenTime < hackTime + hackOffset) {
         weakenOffset += hackOffset + hackTime - weakenTime + 1000;
     }
-    run(ns, "weaken", weakenHackThreads, target, weakenOffset);
+    run(ns, "weaken", {
+        host,
+        threads: weakenHackThreads,
+        target,
+        delay: weakenOffset,
+    });
     // ns.tprint(`Weaken planned time: ${weakenTime / 1000}s after ${weakenOffset / 1000}s delay`);
     return (Math.max(weakenTime + weakenOffset, hackTime + hackOffset, growTime) + 1000);
 }
 /** @param {NS} ns
 * @param {"hack" | "grow" | "weaken"} script
-* @param {number} threads
-* @param {string} target
-* @param {number} delay* @returns {number}
+* @param {RunOptions} { threads, target, delay = 0, host = "home" }* @returns {number}
 
 */
-function run(ns, script, threads, target, delay = 0) {
-    return ns.run(`/scripts/milk/${script}.js`, threads, target, delay);
+function run(ns, script, { threads, target, delay = 0, host = "home" }) {
+    return ns.exec(`/scripts/milk/${script}.js`, host, threads, target, delay);
 }
