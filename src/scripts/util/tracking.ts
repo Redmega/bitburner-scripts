@@ -87,9 +87,7 @@ class Analytics {
     });
 
     if (!response.ok) {
-      this.ns.print(
-        `ERROR tracking "${event_type}". ${response.status}: ${response.statusText}`
-      );
+      this.ns.print(`ERROR tracking "${event_type}". ${response.status}: ${response.statusText}`);
     }
   }
 }

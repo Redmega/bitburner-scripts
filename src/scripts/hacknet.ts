@@ -35,28 +35,19 @@ const maximizeHacknet = (n = 1000) =>
     });
 
     for (const node of nodes) {
-      if (
-        node.canUpgradeCores &&
-        ns.hacknet.getCoreUpgradeCost(node.index, 1) < money
-      ) {
+      if (node.canUpgradeCores && ns.hacknet.getCoreUpgradeCost(node.index, 1) < money) {
         ns.print(`${node.name} >> Upgrading Core`);
         ns.hacknet.upgradeCore(node.index, 1);
         return maximizeHacknet();
       }
 
-      if (
-        node.canUpgradeRam &&
-        ns.hacknet.getRamUpgradeCost(node.index, 1) < money
-      ) {
+      if (node.canUpgradeRam && ns.hacknet.getRamUpgradeCost(node.index, 1) < money) {
         ns.print(`${node.name} >> Upgrading RAM`);
         ns.hacknet.upgradeRam(node.index, 1);
         return maximizeHacknet();
       }
 
-      if (
-        node.canUpgradeLevel &&
-        ns.hacknet.getLevelUpgradeCost(node.index, 5) < money
-      ) {
+      if (node.canUpgradeLevel && ns.hacknet.getLevelUpgradeCost(node.index, 5) < money) {
         ns.print(`${node.name} >> Upgrading Level`);
         ns.hacknet.upgradeLevel(node.index, 5);
         return maximizeHacknet();

@@ -7,11 +7,7 @@ export async function main(ns: NS) {
   const [target, sleep = 0] = ns.args as Args;
   await ns.sleep(sleep);
 
-  const self = ns.getRunningScript(
-    ns.getScriptName(),
-    ns.getHostname(),
-    ...ns.args
-  );
+  const self = ns.getRunningScript(ns.getScriptName(), ns.getHostname(), ...ns.args);
 
   const duration = ns.getGrowTime(target);
   const money = ns.getServerMoneyAvailable(target);

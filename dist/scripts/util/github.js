@@ -27,9 +27,7 @@ export default class Github {
         const body = await response.json();
         let files = [...body.filter((item) => item.type === "file")];
         if (recursive) {
-            files = files.concat(...(await Promise.all(body
-                .filter((item) => item.type === "dir")
-                .map((item) => this.fetchContents(item.path, { recursive })))));
+            files = files.concat(...(await Promise.all(body.filter((item) => item.type === "dir").map((item) => this.fetchContents(item.path, { recursive })))));
         }
         return files;
     }

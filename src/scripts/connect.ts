@@ -1,5 +1,5 @@
 import type { NS } from "types/NetscriptDefinitions";
-import { getServers } from "/scripts/util/game.js";
+import { getServerPath } from "/scripts/util/game.js";
 import { cmd } from "/scripts/util/dom.js";
 
 /**
@@ -11,9 +11,13 @@ export async function main(ns: NS) {
 
   if (typeof target !== "string") throw new Error("Invalid target.");
 
-  const server = getServers(ns).find((s) => s.name === target);
+  const path = getServerPath(ns, target);
 
-  const command = `connect ${server.path.join("; connect ")};`;
+  if (!path) {
+    throw new Error("Path is undefined");
+  }
+
+  const command = `home; connect ${path.join("; connect ")};`;
 
   cmd(command);
 }

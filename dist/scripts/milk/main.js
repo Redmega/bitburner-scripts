@@ -96,7 +96,7 @@ function cycle(ns, target, { growThreads, weakenGrowThreads, weakenHackThreads, 
         delay: weakenOffset,
     });
     // ns.tprint(`Weaken planned time: ${weakenTime / 1000}s after ${weakenOffset / 1000}s delay`);
-    return (Math.max(weakenTime + weakenOffset, hackTime + hackOffset, growTime) + 1000);
+    return Math.max(weakenTime + weakenOffset, hackTime + hackOffset, growTime) + 1000;
 }
 /** @param {NS} ns
 * @param {"hack" | "grow" | "weaken"} script

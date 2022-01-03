@@ -51,9 +51,7 @@ export default class Github {
     if (recursive) {
       files = files.concat(
         ...(await Promise.all(
-          body
-            .filter((item) => item.type === "dir")
-            .map((item) => this.fetchContents(item.path, { recursive }))
+          body.filter((item) => item.type === "dir").map((item) => this.fetchContents(item.path, { recursive }))
         ))
       );
     }
@@ -62,8 +60,6 @@ export default class Github {
   }
 
   private get contentUrl() {
-    return [Github.API_URL, "repos/redmega/bitburner-scripts/contents"].join(
-      "/"
-    );
+    return [Github.API_URL, "repos/redmega/bitburner-scripts/contents"].join("/");
   }
 }

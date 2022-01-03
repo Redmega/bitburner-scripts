@@ -7,9 +7,7 @@ export async function main(ns: NS) {
   const maxMoney = ns.getServerMaxMoney(target);
 
   // First, prime the server.
-  if (
-    ns.getServerSecurityLevel(target) > ns.getServerMinSecurityLevel(target)
-  ) {
+  if (ns.getServerSecurityLevel(target) > ns.getServerMinSecurityLevel(target)) {
     const weakenTime = ns.getWeakenTime(target);
     run(ns, "weaken", { threads: 2000, target });
     await ns.sleep(weakenTime + 1000);
@@ -18,17 +16,10 @@ export async function main(ns: NS) {
   while (true) {
     const availableMoney = ns.getServerMoneyAvailable(target) || 1;
     const growThreads =
-      Math.ceil(
-        ns.growthAnalyze(
-          target,
-          Math.ceil(maxMoney / availableMoney),
-          ns.getServer("home").cpuCores
-        )
-      ) || 1;
+      Math.ceil(ns.growthAnalyze(target, Math.ceil(maxMoney / availableMoney), ns.getServer("home").cpuCores)) || 1;
     const growSecurity = ns.growthAnalyzeSecurity(growThreads);
 
-    const hackThreads =
-      ns.hackAnalyzeThreads(target, ns.getServerMoneyAvailable(target)) || 1;
+    const hackThreads = ns.hackAnalyzeThreads(target, ns.getServerMoneyAvailable(target)) || 1;
     const hackSecurity = ns.hackAnalyzeSecurity(hackThreads);
     const weakenGrowThreads = Math.ceil(growSecurity / 0.05);
     const weakenHackThreads = Math.ceil(hackSecurity / 0.05);
@@ -120,9 +111,7 @@ function cycle(
   });
   // ns.tprint(`Weaken planned time: ${weakenTime / 1000}s after ${weakenOffset / 1000}s delay`);
 
-  return (
-    Math.max(weakenTime + weakenOffset, hackTime + hackOffset, growTime) + 1000
-  );
+  return Math.max(weakenTime + weakenOffset, hackTime + hackOffset, growTime) + 1000;
 }
 
 interface RunOptions {
@@ -131,10 +120,6 @@ interface RunOptions {
   delay?: number;
   host?: string;
 }
-function run(
-  ns: NS,
-  script: "hack" | "grow" | "weaken",
-  { threads, target, delay = 0, host = "home" }: RunOptions
-) {
+function run(ns: NS, script: "hack" | "grow" | "weaken", { threads, target, delay = 0, host = "home" }: RunOptions) {
   return ns.exec(`/scripts/milk/${script}.js`, host, threads, target, delay);
 }

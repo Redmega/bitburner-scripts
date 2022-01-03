@@ -10,10 +10,7 @@ export async function main(ns: NS) {
     ns.tprintf("ERROR File not found");
     return;
   } else if (files.length > 1 && recursive !== "-r") {
-    ns.tprintf(
-      "ERROR Multiple files found with that grep. Please use `-r` for recursive deletion.\n%j",
-      files
-    );
+    ns.tprintf("ERROR Multiple files found with that grep. Please use `-r` for recursive deletion.\n%j", files);
     return;
   }
   for (const file of files) {

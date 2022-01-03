@@ -1,12 +1,5 @@
 import { getServers } from "/scripts/util/game.js";
-const PORT_OPENING_PROGRAMS = [
-    "BruteSSH.exe",
-    "FTPCrack.exe",
-    "relaySMTP.exe",
-    "HTTPWorm.exe",
-    "SQLInject.exe",
-    "XX",
-];
+const PORT_OPENING_PROGRAMS = ["BruteSSH.exe", "FTPCrack.exe", "relaySMTP.exe", "HTTPWorm.exe", "SQLInject.exe", "XX"];
 /** @param {NS} ns*/
 export async function main(ns) {
     //Initialise

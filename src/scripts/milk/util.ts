@@ -20,8 +20,7 @@ export function calculateGrowthThreadsWithFormula(
     lower = 0, // Lower bound; last guess that failed to reach the goal
     guess = Math.min(1000000, Math.ceil(best / 2)); // Current guess; 1000000 will almost certainly be too high, but it will also be a better first guess than the halfway point on most servers.
   for (let i = 0; guess != best && i < maxIterations; ++i) {
-    const expectedOutcome =
-      (start + guess) * ns.formulas.hacking.growPercent(server, guess, player);
+    const expectedOutcome = (start + guess) * ns.formulas.hacking.growPercent(server, guess, player);
     if (expectedOutcome >= goal) {
       // This many threads will reach our goal!
       if (best < guess) {

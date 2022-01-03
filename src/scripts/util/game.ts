@@ -22,19 +22,17 @@ export function getServers(ns: NS): IServer[] {
   let name;
   while ((name = queue.pop())) {
     let depth = visited[name];
+    const neighbors = ns.scan(name);
     result.push({
       name,
       depth,
       root: ns.hasRootAccess(name),
-      path: result
-        .slice(findLastIndex(result, (s) => s.depth <= 1))
-        .map((s) => s.name)
-        .concat(name),
       requiredHackingLevel: ns.getServerRequiredHackingLevel(name),
       requiredOpenPorts: ns.getServerNumPortsRequired(name),
+      neighbors,
     });
 
-    for (const server of ns.scan(name)) {
+    for (const server of neighbors) {
       if (visited[server] === undefined) {
         queue.push(server);
         visited[server] = depth + 1;
@@ -70,4 +68,45 @@ export function getServerNames(ns: NS): string[] {
   ns.enableLog("scan");
 
   return Array.from(result);
+}
+
+/**
+ * Sometimes we want the path to a server
+ */
+export function getServerPath(ns: NS, target: string): undefined | string[] {
+  // Memoize our servers so we don't need to loop so much
+  const servers = getServers(ns).reduce<Record<string, IServer>>(
+    (record, server) => ({ ...record, [server.name]: server }),
+    {}
+  );
+  const server = servers[target];
+
+  if (!server) {
+    ns.tprint(`ERROR "${target}" not found.`);
+    return undefined;
+  }
+
+  const path = [server.name];
+
+  // Start searching!
+  let lastServer: IServer = server;
+  while (lastServer.name !== "home") {
+    for (const name of lastServer.neighbors) {
+      const neighbor = servers[name];
+      if (!neighbor) continue;
+
+      if (neighbor.name === "home") {
+        lastServer = neighbor;
+        break;
+      }
+
+      if (neighbor.depth < lastServer.depth) {
+        path.push(neighbor.name);
+        lastServer = neighbor;
+        break;
+      }
+    }
+  }
+
+  return path.reverse();
 }

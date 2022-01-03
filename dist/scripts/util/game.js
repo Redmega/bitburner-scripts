@@ -1,4 +1,3 @@
-import { findLastIndex } from "/scripts/util/misc.js";
 /**
  * Gets all scannable servers, including depth, root access, and path info
  * Adapted from https://www.reddit.com/r/Bitburner/comments/9nrz3v/scan_script_v2/
@@ -18,18 +17,16 @@ export function getServers(ns) {
     let name;
     while ((name = queue.pop())) {
         let depth = visited[name];
+        const neighbors = ns.scan(name);
         result.push({
             name,
             depth,
             root: ns.hasRootAccess(name),
-            path: result
-                .slice(findLastIndex(result, (s) => s.depth <= 1))
-                .map((s) => s.name)
-                .concat(name),
             requiredHackingLevel: ns.getServerRequiredHackingLevel(name),
             requiredOpenPorts: ns.getServerNumPortsRequired(name),
+            neighbors,
         });
-        for (const server of ns.scan(name)) {
+        for (const server of neighbors) {
             if (visited[server] === undefined) {
                 queue.push(server);
                 visited[server] = depth + 1;
@@ -59,4 +56,38 @@ export function getServerNames(ns) {
     }
     ns.enableLog("scan");
     return Array.from(result);
+}
+/**
+ * Sometimes we want the path to a server
+ * @param {NS} ns
+* @param {string} target
+*/
+export function getServerPath(ns, target) {
+    // Memoize our servers so we don't need to loop so much
+    const servers = getServers(ns).reduce((record, server) => ({ ...record, [server.name]: server }), {});
+    const server = servers[target];
+    if (!server) {
+        ns.tprint(`ERROR "${target}" not found.`);
+        return undefined;
+    }
+    const path = [server.name];
+    // Start searching!
+    let lastServer = server;
+    while (lastServer.name !== "home") {
+        for (const name of lastServer.neighbors) {
+            const neighbor = servers[name];
+            if (!neighbor)
+                continue;
+            if (neighbor.name === "home") {
+                lastServer = neighbor;
+                break;
+            }
+            if (neighbor.depth < lastServer.depth) {
+                path.push(neighbor.name);
+                lastServer = neighbor;
+                break;
+            }
+        }
+    }
+    return path.reverse();
 }

@@ -1,18 +1,12 @@
 import type { NS } from "types/NetscriptDefinitions";
 
 const REQUIRED_STARTUP_SCRIPTS = [
-  [
-    "https://raw.githubusercontent.com/Redmega/bitburner-scripts/main/dist/scripts/util/dom.js",
-    "/scripts/util/dom.js",
-  ],
+  ["https://raw.githubusercontent.com/Redmega/bitburner-scripts/main/dist/scripts/util/dom.js", "/scripts/util/dom.js"],
   [
     "https://raw.githubusercontent.com/Redmega/bitburner-scripts/main/dist/scripts/util/github.js",
     "/scripts/util/github.js",
   ],
-  [
-    "https://raw.githubusercontent.com/Redmega/bitburner-scripts/main/dist/sync.js",
-    "sync.js",
-  ],
+  ["https://raw.githubusercontent.com/Redmega/bitburner-scripts/main/dist/sync.js", "sync.js"],
 ];
 
 export async function main(ns: NS) {

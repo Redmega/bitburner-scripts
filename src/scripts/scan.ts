@@ -28,10 +28,6 @@ export async function main(ns: NS) {
   const servers = getServers(ns);
 
   for (const { name, depth, root } of servers) {
-    ns.tprintf(
-      `${getPrefix(depth)}${FACTION_SERVERS[name] ?? ""} ${name} ${
-        root ? "✅" : ""
-      }`
-    );
+    ns.tprintf(`${getPrefix(depth)}${FACTION_SERVERS[name] ?? ""} ${name} ${root ? "✅" : ""}`);
   }
 }
