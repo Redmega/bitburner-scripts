@@ -42,31 +42,31 @@ export async function main(ns: NS) {
     });
 
     // Spin up cycles on purchased servers
-    for (const [i, server] of Object.entries(ns.getPurchasedServers())) {
-      await ns.scp(
-        [
-          "/scripts/util/dom.js",
-          "/scripts/milk/grow.js",
-          "/scripts/milk/hack.js",
-          "/scripts/milk/weaken.js",
-        ],
-        "home",
-        server
-      );
+    // for (const [i, server] of Object.entries(ns.getPurchasedServers())) {
+    //   await ns.scp(
+    //     [
+    //       "/scripts/util/dom.js",
+    //       "/scripts/milk/grow.js",
+    //       "/scripts/milk/hack.js",
+    //       "/scripts/milk/weaken.js",
+    //     ],
+    //     "home",
+    //     server
+    //   );
 
-      cycle(
-        ns,
-        target,
-        {
-          growThreads,
-          weakenGrowThreads,
-          weakenHackThreads,
-          hackThreads,
-        },
-        server,
-        (1 + Number(i)) * 1000
-      );
-    }
+    //   cycle(
+    //     ns,
+    //     target,
+    //     {
+    //       growThreads,
+    //       weakenGrowThreads,
+    //       weakenHackThreads,
+    //       hackThreads,
+    //     },
+    //     server,
+    //     (1 + Number(i)) * 1000
+    //   );
+    // }
 
     await ns.sleep(maxTime);
   }
