@@ -16,7 +16,9 @@ export async function main(ns: NS) {
   while (true) {
     const availableMoney = ns.getServerMoneyAvailable(target) || 1;
     const growThreads =
-      Math.ceil(ns.growthAnalyze(target, Math.ceil(maxMoney / availableMoney), ns.getServer("home").cpuCores)) || 1;
+      Math.ceil(
+        ns.growthAnalyze(target, Math.ceil(maxMoney / availableMoney), ns.getServer(ns.getHostname()).cpuCores)
+      ) || 1;
     const growSecurity = ns.growthAnalyzeSecurity(growThreads);
 
     const hackThreads = ns.hackAnalyzeThreads(target, ns.getServerMoneyAvailable(target)) || 1;
@@ -24,7 +26,7 @@ export async function main(ns: NS) {
     const weakenGrowThreads = Math.ceil(growSecurity / 0.05);
     const weakenHackThreads = Math.ceil(hackSecurity / 0.05);
 
-    // Initial cycle on home
+    // Initial cycle
     const maxTime = cycle(ns, target, {
       growThreads,
       weakenGrowThreads,
@@ -67,7 +69,7 @@ function cycle(
   ns: NS,
   target: string,
   { growThreads, weakenGrowThreads, weakenHackThreads, hackThreads },
-  host: string = "home",
+  host: string = ns.getHostname(),
   delay: number = 0
 ): number {
   // grow ->
@@ -120,6 +122,10 @@ interface RunOptions {
   delay?: number;
   host?: string;
 }
-function run(ns: NS, script: "hack" | "grow" | "weaken", { threads, target, delay = 0, host = "home" }: RunOptions) {
+function run(
+  ns: NS,
+  script: "hack" | "grow" | "weaken",
+  { threads, target, delay = 0, host = ns.getHostname() }: RunOptions
+) {
   return ns.exec(`/scripts/milk/${script}.js`, host, threads, target, delay);
 }
