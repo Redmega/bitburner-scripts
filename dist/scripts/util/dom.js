@@ -11,6 +11,12 @@ export class Cheat {
     static get analytics() {
         return Cheat.win.analytics;
     }
+    static openDevMenu() {
+        const node = Cheat.doc.querySelector("#root > .MuiBox-root > .MuiBox-root");
+        const propKey = Object.keys(node).find((k) => k.includes("reactProps"));
+        const component = node[propKey].children[0];
+        component.props.router.toDevMenu();
+    }
 }
 /**
  * Run a command in the terminal
